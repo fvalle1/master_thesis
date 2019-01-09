@@ -3,3 +3,13 @@
 OSLOM2/
 gdc-client/
 pgc/
+*/.idea
+*.gz
+*.txt
+*.csv
+.ipynb_checkpoints/
+data/
+*.dat
+*.pdf
+*/cmake-build-debug/
+*/build
