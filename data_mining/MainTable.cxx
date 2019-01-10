@@ -79,7 +79,7 @@ void MainTable::read(bool saveAbundancesOccurrences) {
 
 void MainTable::readBinary() {
     cout<<"Reading maintable.csv"<<endl;
-    fstream file("binaryTable.csv", std::ios::out);
+    fstream file("binaryTable.csv", std::ios::in);
     string line;
     uint64_t idata = 0;
 
@@ -91,7 +91,7 @@ void MainTable::readBinary() {
             fNRealizations=tokenizedLine.size() - 1;
             firstRead = true;
         }
-        if(idata%10000==0) printf("\r%llu/%llu",idata,fNRealizations*fNComponents);
+        if(idata%1000==0) printf("\r%llu/%llu",idata,fNRealizations*fNComponents);
 
         //+1 because first column is component-id
         for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
@@ -118,11 +118,13 @@ void MainTable::SaveBinary() {
     cout<<"Saving binary matrix"<<endl;
     fstream file("binaryTable.csv", std::ios::out);
     for(uint64_t idata = 0; idata < fNComponents*fNRealizations; idata++){
+        if(idata%10000==0) printf("\r%llu/%llu",idata,fNRealizations*fNComponents);
         file<<(fData[idata]?1:0);
         if((idata+1)%fNRealizations==0) file<<"\n";
         else file <<",";
     }
     file.close();
+    cout<<endl;
 }
 
 void MainTable::SaveTotalArray(const char *filename, uint64_t length, double *X) {
@@ -169,4 +171,79 @@ void MainTable::SaveHeapData(double *VocabularySize) {
 
     file.close();
     cout<<endl;
+}
+
+
+void MainTable::ExtimateCorrelations() {
+    cout<<"Extimating correlations"<<endl;
+
+//    fNComponents = 1000;
+//    fNRealizations = 100;
+
+    ExtimateHXY();
+}
+
+void MainTable::ExtimateHXY() {
+    cout<<"Extimating H(X,Y)"<<endl;
+
+    fstream file("correlations.dat", ios_base::out);
+
+    double norm = 1./fNRealizations;
+    double H, h;
+    double hx[2];
+    double hy[2];
+
+
+    for(uint64_t firstComponent = 0; firstComponent < fNComponents; firstComponent++){
+        for(uint64_t secondComponent = firstComponent + 1; secondComponent < fNComponents; secondComponent++){
+            printf("\r%llu/%llu",firstComponent,secondComponent);
+            double P[4] = {0.};
+            for (uint64_t realization = 0; realization < fNRealizations; ++realization) {
+                auto x = get(firstComponent, realization);
+                auto y = get(secondComponent, realization);
+                if(x==y){
+                    if(x==0){//00
+                        P[0]+=norm;
+                    }else{//11
+                        P[3]+=norm;
+                    }
+                }else{
+                    if(x==0){//01
+                        P[1]+=norm;
+                    }else{//10
+                        P[2]+=norm;
+                    }
+                }
+            }
+
+            h = GetEntropy(P, 4);
+            hx[0] = P[0] + P[1]; //prob of Zeros in first
+            hx[1] = 1 - hx[0]; //prob of Ones in forst
+
+            hy[0] = P[0] + P[2]; //prob of Zeros in second
+            hy[1] = 1 - hy[0]; //prob of Zeros in second
+
+
+            H =  GetEntropy(hx,2) + GetEntropy(hy,2) - h;
+//            cout<<P[0]<<"\t"<<P[1]<<"\t"<<P[2]<<"\t"<<P[3]<<"\t"<<GetEntropy(hx,2)<<"\t"<<GetEntropy(hy,2)<<"\t"<<h<<"\t"<<H<<endl;
+
+            file << firstComponent << "\t" << secondComponent << "\t" << H << endl;
+
+        }
+
+        file.flush();
+    }
+
+    file.close();
+    cout<<endl;
+}
+
+
+double MainTable::GetEntropy(double *X, uint64_t l){
+    double H = 0.;
+    for(uint64_t i = 0; i < l; i++){
+        double x = X[i];
+        if(x>1e-3) H += x*log2(x);
+    }
+    return -H;
 }
