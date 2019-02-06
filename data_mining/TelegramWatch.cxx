@@ -30,11 +30,11 @@ void TelegramWatch::callIFTTT() const {
   
   curl = curl_easy_init();                 // inizio una sessione di libcurl
   if(curl) {                               // se curl (che è un ptr) punta a qualcosa , allora:
-    char encWall[32];                      // encoded Wall: conterrà il valore tempo REALE, però scritto in una stringa
-    char encSystem[32];                       // encoded CPU: tempo della CPU scritto in caratteri
-    char url[220];
+    char encWall[35];                      // encoded Wall: conterrà il valore tempo REALE, però scritto in una stringa
+    char encSystem[35];                       // encoded CPU: tempo della CPU scritto in caratteri
+    char url[225];
     
-    char* encName = curl_easy_escape(curl, fName, 5);            // This function converts the given input string to a URL encoded string and returns that as a new allocated string.
+    char* encName = curl_easy_escape(curl, fName, 7);            // This function converts the given input string to a URL encoded string and returns that as a new allocated string.
     sprintf(encWall, "%6.2fsecs[Wall_time]", boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::nanoseconds(elapsed().wall)).count()/1000.);     // Scrivo in caratteri il tempo reale (troncato alla seconda cifra decimale)
     sprintf(encSystem, "%6.2fsecs[Sys_time]", boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::nanoseconds(elapsed().user)).count()/1000.);
     sprintf(url, "%s?value1=%s&value2=%s&value3=%s", fURL, encName, curl_easy_escape(curl, encWall, 19), curl_easy_escape(curl, encSystem, 18));

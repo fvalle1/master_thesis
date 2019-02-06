@@ -1,5 +1,4 @@
 .DS_Store
-.DS_Store
 OSLOM2/
 gdc-client/
 pgc/
@@ -8,8 +7,12 @@ pgc/
 *.txt
 *.csv
 .ipynb_checkpoints/
-data/
 *.dat
 *.pdf
 */cmake-build-debug/
 */build
+
+data/
+data_counts/
+data_fpkm/
+data_fpkmuq/
