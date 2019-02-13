@@ -36,6 +36,7 @@ public:
 
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
+    void MakeCorpus();
 
     uint64_t get(uint64_t component, uint64_t realization) {
         if (component < fNComponents && realization < fNRealizations)
@@ -54,7 +55,7 @@ protected:
     void SaveHeapsData(const double *VocabularySize);
     void ExtimateHXY(const char *filename);
 
-    static const double constexpr fThreshold = 0.;
+    static const double constexpr fThreshold = 100.;
     static constexpr int fSeed = 42;
 
 private:

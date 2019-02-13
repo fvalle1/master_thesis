@@ -11,42 +11,62 @@
 int main(int argc, const char** argv) // minimal test driver
 {
     omp_set_nested(1);
+    printf("Running TCGA\n");
+#pragma omp parallel
+    if(omp_get_thread_num()==0) printf("threads: %d\n", omp_get_num_threads());
 
     TelegramWatch watch("thesis");
 
     MainTable* TCGA;
 
-    switch(std::atoi(argv[1])){
-        case 0:
-            TCGA = new MainTable();
-            TCGA->read("mainTable.csv", true);
-//    TCGA->SaveBinary("binaryTable.csv");
-//    TCGA->readBinary();
-            TCGA->ExtimateCorrelations();
-            TCGA->~MainTable();
-            break;
-        case 1:
-            TCGA = new NullModel();
-//    ((NullModel*)(TCGA))->GenerateNullBinary();
-            ((NullModel*)(TCGA))->GenerateNullData();
-            //     ((NullModel*)(TCGA))->SaveBinary("binaryNull.csv");
-//     ((NullModel*)(TCGA))->read("binaryNull.csv", true);
-//    ((NullModel*)(TCGA))->ExtimateCorrelations("correlations_null.dat");
-            TCGA->~MainTable();
-            break;
+    if(argc < 2){
+        cerr<<"Please write some options"<<endl;
+        cout<<"0 ---> read and extimate correlation mainTable.csv"<<endl;
+        cout<<"1 ---> read mainTable.csv"<<endl;
+        cout<<"2 ---> GenerateNullData"<<endl;
+        cout<<"3 ---> read nullTable.csv"<<endl;
+        cout<<"4 ---> read and extimate correlation nullTable.csv"<<endl;
+        cout<<"5 ---> read and makeCorpus"<<endl;
+    }else {
+        switch (std::atoi(argv[1])) {
+            case 0:
+                TCGA = new MainTable();
+                TCGA->read("mainTable.csv", true);
+                TCGA->ExtimateCorrelations();
+                TCGA->~MainTable();
+                break;
+            case 1:
+                TCGA = new MainTable();
+                TCGA->read("mainTable.csv", true);
+                TCGA->~MainTable();
+                break;
+            case 2:
+                TCGA = new NullModel();
+                ((NullModel *) (TCGA))->GenerateNullData();
+                TCGA->~MainTable();
+                break;
+            case 3:
+                TCGA = new MainTable();
+                TCGA->read("nullTable.csv", true);
+                TCGA->~MainTable();
+                break;
+            case 4:
+                TCGA = new MainTable();
+                TCGA->read("nullTable.csv", true);
+                TCGA->ExtimateCorrelations("correlations_null.dat");
+                TCGA->~MainTable();
+            case 5:
+                TCGA = new MainTable();
+                TCGA->read("mainTable.csv", false);
+                TCGA->MakeCorpus();
+                TCGA->~MainTable();
+                break;
+            default:
+                std::cerr << "missing arguments" << std::endl;
+                break;
+        }
 
-        case 2:
-            TCGA = new MainTable();
-            TCGA->read("nullTable.csv", true);
-            TCGA->ExtimateCorrelations("correlations_null.dat");
-            TCGA->~MainTable();
-            break;
-        default:
-            std::cerr<<"missing arguments"<<std::endl;
-            break;
     }
-
-
 
     return 0;
 }
