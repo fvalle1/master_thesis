@@ -1,0 +1,3 @@
+[submodule "hSBM_Topicmodel"]
+	path = hSBM_Topicmodel
+	url = https://github.com/martingerlach/hSBM_Topicmodel.git
