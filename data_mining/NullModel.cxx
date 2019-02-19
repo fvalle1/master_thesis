@@ -10,28 +10,32 @@ void NullModel::GenerateNullData() {
     fstream voc("vocabulary_size.dat", std::ios::in);
 
     if(occ.is_open()&&voc.is_open()) {
-        long double o;
-        std::vector<long double> probabilities;
+        double o;
+        std::vector<double> probabilities;
         probabilities.reserve(fNComponents);
+        uint64_t actualComponents = 0;
         while(occ>>o){
             probabilities.push_back(o);
+            actualComponents++;
         }
         occ.close();
+        fNComponents = actualComponents;
         cout<<"loaded occurences.."<<endl;
 
         // Make a random number engine
         auto rng = RandomGen::Instance();
 
         // Choose a random multinomial
+        std::sort(probabilities.begin(), probabilities.end()); //sort to avoid strange behaviours
         boost::random::discrete_distribution<uint16_t> distr(probabilities);
 
         probabilities.clear(); //a copy is stored in boost::ranodm::dicrete_distribution
         delete[] fData; //just to free some RAM I'll reallocate in the future
 
-        auto nullData = new uint16_t[fNRealizations*fNComponents];
+        auto nullData = new long double[fNRealizations*fNComponents];
 
         double M;
-        uint64_t cRealization = 0;
+        uint64_t effectivelyLoadedRealization = 0;
         auto counts = new uint16_t[fNComponents];
         for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
 
@@ -39,14 +43,14 @@ void NullModel::GenerateNullData() {
         //for realization
         while (voc >> M) {
             for(uint64_t word = 0; word < M; word++) counts[distr(rng)]++;
-            printf("\r%llu/%llu",cRealization,fNRealizations);
+            printf("\r%llu/%llu",effectivelyLoadedRealization,fNRealizations);
 
             for(uint64_t component = 0; component < fNComponents; component++)
-                nullData[fNRealizations*component + cRealization] = counts[component];
+                nullData[fNRealizations*component + effectivelyLoadedRealization] = counts[component];
 
 
             for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
-            cRealization++;
+            effectivelyLoadedRealization++;
         }
         delete[] counts;
         voc.close();
@@ -55,11 +59,11 @@ void NullModel::GenerateNullData() {
         fstream file("nullTable.csv", std::ios::out);
         file<<endl; //mime header line
         for(uint64_t component = 0; component < fNComponents; component++) {
-          file<<",";
-            printf("\r%llu/%llu", component, fNComponents);
-            for (uint64_t realization = 0; realization < cRealization; realization++) {
+            file<<",";
+            printf("\r%llu/%llu", component+1, fNComponents);
+            for (uint64_t realization = 0; realization < effectivelyLoadedRealization; realization++) {
                 file << nullData[fNRealizations * component + realization];
-                if(realization < cRealization - 1) file << ",";
+                if(realization < effectivelyLoadedRealization - 1) file << ",";
             }
             file<<"\n";
         }

@@ -38,10 +38,21 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
             for (uint64_t i = 0; i < fNRealizations; i++) VocabularySize[i] = 0.;
         }
 
-        //read header line
-        getline(file, line).good();
+        //read header line and generate titles.txt
+        //NB begins()+1 because first row is just "gene" word
+        std::string header;
+        if(getline(file, header).good()){
+            fstream titles("titles.txt", ios::out);
+            auto names = tokenize(header);
+            std::for_each(names.begin()+1, names.end(), [&](string name){
+                titles << name << "\n";
+            });
+            titles.close();
+        }
+
 
         bool firstRead = false;
+        uint64_t actualWords = 0;
         while (getline(file, line).good()) {
             auto tokenizedLine = tokenize(line);
 
@@ -51,10 +62,9 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
             }
             if (idata % 5000 == 0) printf("\r%llu/%llu", idata, fNRealizations * fNComponents);
 
-
             //+1 because first column is component-id
             for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
-                //cout<<*token<<endl;
+//                cout<<*token<<endl;
                 double value = std::stod(*token);
                 bool binaryValue = value > MainTable::fThreshold;
                 fData[idata++] = binaryValue;
@@ -65,8 +75,10 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
                 }
                 VocabularySize[idata % fNRealizations] += value;
             }
+            actualWords++;
         }
 
+        fNComponents = actualWords;
         file.close();
         cout << endl;
 
