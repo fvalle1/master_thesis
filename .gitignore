@@ -2,6 +2,7 @@
 OSLOM2/
 gdc-client/
 pgc/
+midterms/
 
 */.idea
 .ipynb_checkpoints/
