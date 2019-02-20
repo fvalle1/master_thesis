@@ -22,3 +22,5 @@ data_mining/master/
 *.csv
 *.dat
 *.pdf
+
+*.red
