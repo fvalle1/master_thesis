@@ -4,6 +4,8 @@
 
 #include "MainTable.h"
 
+const std::pair<double, double> MainTable::fThreshold = {0.1, 1e5}; //as stated by Matteo Cereda
+
 
 MainTable::MainTable() {
     //init size of the table
@@ -66,7 +68,7 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
             for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
 //                cout<<*token<<endl;
                 double value = std::stod(*token);
-                bool binaryValue = value > MainTable::fThreshold;
+                bool binaryValue = (value > MainTable::fThreshold.first) && (value < MainTable::fThreshold.second);
                 fData[idata++] = binaryValue;
 
                 if (saveAbundancesOccurrences) {
@@ -291,36 +293,67 @@ double MainTable::SumEntropy(uint64_t l, double *X){
 }
 
 void MainTable::MakeCorpus() {
-    //To do only low occurrences
     cout<<"Making corpus"<<endl;
 
     fstream file("corpus.txt", ios::out);
-    fstream genesfile("genes.txt", ios::in);
-    if(!genesfile.is_open()){
-        cerr<<"error reading genes.txt"<<endl;
+    if(!file.is_open()){
+        cerr<<"error reading file"<<endl;
     }else {
-        vector<string> genes;
-        genes.reserve(fNComponents);
+
         string gene;
 
-        auto rng = RandomGen::Instance();
-        boost::random::uniform_int_distribution<uint64_t> distribution(0, fNComponents);
 
-        while (getline(genesfile, gene).good()) genes.push_back(gene.substr(9,6));
 
         cout<<"read genes file.."<<endl;
 
-        for (uint64_t realization = 0; realization < fNRealizations; realization++){
-            printf("\r%llu/%llu", realization+1, fNRealizations);
-//            auto start = distribution(rng);
-            int start = 0;
-            for(uint64_t component = start; component < fNComponents; component++){
-                if(component>fNComponents) component-=fNComponents;
-                if(get(component, realization)==1) file<<genes[component]<<" ";
-            }
-            file<<endl;
-            file.flush();
-        }
+
 
     }
+}
+
+void MainTable::SaveMeansVariances(const char *filename) {
+    cout << "Reading " << filename << endl;
+    fstream file(filename, std::ios::in);
+    fstream meanVariances("meanVariances.csv", std::ios::out);
+    meanVariances<<",mean,variance,type_of_gene"<<endl;
+    if (!file.is_open()) {
+        cerr << "file not found" << endl;
+    } else {
+        string line;
+
+        //read header line and generate
+        std::string header;
+        getline(file, header).good();
+
+        uint64_t ngenes = 0;
+        while (getline(file, line).good()) {
+            auto tokenizedLine = tokenize(line);
+
+            printf("\rngenes: %llu", ++ngenes);
+
+            // first column is ENSG-id
+            auto gene = (*(tokenizedLine.begin())).substr(0,15);
+            long double sum = 0.;
+            long double sumsquare = 0.;
+            uint64_t n = 0;
+
+            for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
+//                cout<<*token<<endl;
+                double value = std::stod(*token);
+                if(value > fThreshold.first && value < fThreshold.first) {
+                    //fast algo https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Naive_algorithm
+                    sum += value;
+                    sumsquare += value * value;
+                    n += 1;
+                }
+            }
+
+            if(n>2){
+                long double average = sum / n;
+                long double variance = static_cast<long double>(sumsquare - (sum*sum)/n)/(n);// /n is on finite sample /(n-1) if infinite sample
+                meanVariances<<gene<<","<<average<<","<<variance<<","<<" "<<endl;
+            }
+        }
+    }
+    cout<<endl;
 }

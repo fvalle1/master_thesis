@@ -15,6 +15,8 @@
 #include <cmath>
 #include <boost/tokenizer.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "RandomGen.h"
 
@@ -34,6 +36,7 @@ public:
     void read(const char *tableFilename = "mainTable.csv", bool saveAbundancesOccurrences = true);
     void readBinary();
 
+    void SaveMeansVariances(const char *filename = "mainTable.csv");
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
     void MakeCorpus();
@@ -55,8 +58,7 @@ protected:
     void SaveHeapsData(const double *VocabularySize);
     void ExtimateHXY(const char *filename);
 
-    static const double constexpr fThreshold = 100.;
-    static constexpr int fSeed = 42;
+    static const std::pair<double, double> fThreshold;
 
 private:
     double GetEntropy(uint64_t l, double *X, uint64_t component = 1000000);

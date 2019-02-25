@@ -1,6 +1,3 @@
-
-
-
 #include "MainTable.h"
 #include "TelegramWatch.h"
 #include "NullModel.h"
@@ -26,7 +23,8 @@ int main(int argc, const char** argv) // minimal test driver
         cout<<"2 ---> GenerateNullData"<<endl;
         cout<<"3 ---> read nullTable.csv"<<endl;
         cout<<"4 ---> read and extimate correlation nullTable.csv"<<endl;
-        cout<<"5 ---> read and makeCorpus"<<endl;
+        cout<<"5 ---> read and extimate means and variances"<<endl;
+        cout<<"6 ---> read and makeCorpus"<<endl;
     }else {
         switch (std::atoi(argv[1])) {
             case 0:
@@ -56,6 +54,11 @@ int main(int argc, const char** argv) // minimal test driver
                 TCGA->ExtimateCorrelations("correlations_null.dat");
                 TCGA->~MainTable();
             case 5:
+                TCGA = new MainTable();
+                TCGA->SaveMeansVariances("mainTable.csv");
+                TCGA->~MainTable();
+                break;
+            case 6:
                 TCGA = new MainTable();
                 TCGA->read("mainTable.csv", false);
                 TCGA->MakeCorpus();
