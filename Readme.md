@@ -2,20 +2,25 @@
 
 
 # Files
-## TCGA GetManifest
+## TCGA
+### TCGA GetManifest
 [TCGA_GetManifest](TCGA_GetManifest.ipynb) creates a file called *manifest.txt* that is useful to download data using `gdc-client download -m manifest.txt` command
 
-## Data Table
-[DataTable](DataTable.ipynb) reads a folder with the data downloaded with *gdc-client* and creates a mainTable.csv dataset
+### TCGA API
+[TCGA_API](TCGA_API.ipynb) is useful to retrieve informations about a single file (sample)
 
-## Table Analyzer
-[TableAnalyzer](TableAnalyzer.ipynb) is useful to extract only protein-coding rows and to plot expression per tissues histograms
+##Table
+### TableCreation
+[TableCreation](TableCreation.ipynb) reads a folder with the data downloaded with **gdc-client** and creates a mainTable.csv dataset
+
+### Table mining
+[TableMining](TableMining.ipynb) is useful to extract means and vars per tissues. It stores a *meanVariances.txt* file useful in next step
+
+### Table Analyzer
+[TableAnalyzer](TableAnalyzer.ipynb) is useful to plot expression per tissues histograms and FPKM means and distributions
 
 ## Protein coding
 [ProteinCoding](Protein Coding.ipynb) creates a *genes_pc.txt* file with all ENSG-id that are related to a protein-coding gene
-
-## TCGA API
-[TCGA_API](TCGA_API.ipynb) is useful to retrieve informations about a single file (sample)
 
 # Analysis
 ## data mining
