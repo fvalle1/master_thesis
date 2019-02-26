@@ -11,11 +11,11 @@ void NullModel::GenerateNullData() {
 
     if(occ.is_open()&&voc.is_open()) {
         double o;
-        std::vector<double> probabilities;
+        std::vector<uint64_t> probabilities;
         probabilities.reserve(fNComponents);
         uint64_t actualComponents = 0;
         while(occ>>o){
-            probabilities.push_back(o);
+            probabilities.push_back(static_cast<uint64_t>(o));
             actualComponents++;
         }
         occ.close();
@@ -26,17 +26,18 @@ void NullModel::GenerateNullData() {
         auto rng = RandomGen::Instance();
 
         // Choose a random multinomial
-        std::sort(probabilities.begin(), probabilities.end()); //sort to avoid strange behaviours
-        boost::random::discrete_distribution<uint16_t> distr(probabilities);
+        //std::sort(probabilities.begin(), probabilities.end()); //sort to avoid strange behaviours
+        boost::random::discrete_distribution<uint64_t> distr(probabilities);
 
         probabilities.clear(); //a copy is stored in boost::ranodm::dicrete_distribution
         delete[] fData; //just to free some RAM I'll reallocate in the future
 
-        auto nullData = new long double[fNRealizations*fNComponents];
+        auto nullData = new uint64_t[fNRealizations*fNComponents];
+        for(uint64_t i = 0; i < fNComponents*fNRealizations; i++) nullData[i]=0;
 
         double M;
         uint64_t effectivelyLoadedRealization = 0;
-        auto counts = new uint16_t[fNComponents];
+        auto counts = new uint64_t[fNComponents];
         for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
 
         cout<<"generating data.."<<endl;
@@ -45,9 +46,9 @@ void NullModel::GenerateNullData() {
             for(uint64_t word = 0; word < M; word++) counts[distr(rng)]++;
             printf("\r%llu/%llu",effectivelyLoadedRealization,fNRealizations);
 
-            for(uint64_t component = 0; component < fNComponents; component++)
-                nullData[fNRealizations*component + effectivelyLoadedRealization] = counts[component];
-
+            for(uint64_t component = 0; component < fNComponents; component++) {
+                nullData[fNRealizations * component + effectivelyLoadedRealization] = static_cast<uint64_t>(counts[component]);
+            }
 
             for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
             effectivelyLoadedRealization++;
@@ -61,9 +62,10 @@ void NullModel::GenerateNullData() {
         for(uint64_t component = 0; component < fNComponents; component++) {
             file<<",";
             printf("\r%llu/%llu", component+1, fNComponents);
-            for (uint64_t realization = 0; realization < effectivelyLoadedRealization; realization++) {
+            for (uint64_t realization = 0; realization < fNRealizations; realization++) {
                 file << nullData[fNRealizations * component + realization];
-                if(realization < effectivelyLoadedRealization - 1) file << ",";
+                 if(realization < effectivelyLoadedRealization - 1) file << ",";
+                 else break;
             }
             file<<"\n";
         }

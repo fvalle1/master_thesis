@@ -60,7 +60,7 @@ int main(int argc, const char** argv) // minimal test driver
                 break;
             case 6:
                 TCGA = new MainTable();
-                TCGA->read("mainTable.csv", false);
+                TCGA->read("mainTable.csv", false, true);
                 TCGA->MakeCorpus();
                 TCGA->~MainTable();
                 break;

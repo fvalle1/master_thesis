@@ -22,7 +22,7 @@ MainTable::~MainTable() {
 }
 
 
-void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) {
+void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences, bool saveTitles) {
     cout << "Reading " << tableFilename << endl;
     fstream file(tableFilename, std::ios::in);
     if (!file.is_open()) {
@@ -44,12 +44,14 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
         //NB begins()+1 because first row is just "gene" word
         std::string header;
         if(getline(file, header).good()){
-            fstream titles("titles.txt", ios::out);
-            auto names = tokenize(header);
-            std::for_each(names.begin()+1, names.end(), [&](string name){
-                titles << name << "\n";
-            });
-            titles.close();
+            if(saveTitles) {
+                fstream titles("titles.txt", ios::out);
+                auto names = tokenize(header);
+                std::for_each(names.begin() + 1, names.end(), [&](string name) {
+                    titles << name << "\n";
+                });
+                titles.close();
+            }
         }
 
 
@@ -72,7 +74,7 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
                 fData[idata++] = binaryValue;
 
                 if (saveAbundancesOccurrences) {
-                    A[idata / fNRealizations] += value;
+                    A[idata / fNRealizations] += (binaryValue ? value : 0.); //underthreshold shoud not be simulated
                     O[idata / fNRealizations] += (binaryValue ? 1. : 0.) / fNRealizations;
                 }
                 VocabularySize[idata % fNRealizations] += value;

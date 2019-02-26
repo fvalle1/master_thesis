@@ -33,7 +33,7 @@ public:
 
     ~MainTable();
 
-    void read(const char *tableFilename = "mainTable.csv", bool saveAbundancesOccurrences = true);
+    void read(const char *tableFilename, bool saveAbundancesOccurrences, bool saveTitles = false);
     void readBinary();
 
     void SaveMeansVariances(const char *filename = "mainTable.csv");
