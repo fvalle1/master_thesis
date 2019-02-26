@@ -294,24 +294,6 @@ double MainTable::SumEntropy(uint64_t l, double *X){
     return -H;
 }
 
-void MainTable::MakeCorpus() {
-    cout<<"Making corpus"<<endl;
-
-    fstream file("corpus.txt", ios::out);
-    if(!file.is_open()){
-        cerr<<"error reading file"<<endl;
-    }else {
-
-        string gene;
-
-
-
-        cout<<"read genes file.."<<endl;
-
-
-
-    }
-}
 
 void MainTable::SaveMeansVariances(const char *filename) {
     cout << "Reading " << filename << endl;
@@ -358,4 +340,111 @@ void MainTable::SaveMeansVariances(const char *filename) {
         }
     }
     cout<<endl;
+}
+
+
+void MainTable::MakeGraph() {
+    cout<<"Making graph.xml"<<endl;
+    fstream file("graph.xml", std::ios::out);
+
+    ptree xmlstructure;
+    ptree graphml;
+    graphml.put("<xmlattr>.xmlns", "http://graphml.graphdrawing.org/xmlns");
+    graphml.put("<xmlattr>.xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
+    graphml.put("<xmlattr>.xsi:schemaLocation","http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd");
+
+    ptree key0, key1, key2;
+    key0.put("<xmlattr>.id", "key0");
+    key0.put("<xmlattr>.for", "node");
+    key0.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.name",'|'), "count");
+    key0.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.type",'|'), "int");
+    graphml.add_child("key", key0);
+
+    key1.put("<xmlattr>.id", "key1");
+    key1.put("<xmlattr>.for", "node");
+    key1.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.name",'|'), "kind");
+    key1.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.type",'|'), "int");
+    graphml.add_child("key", key1);
+
+    key2.put("<xmlattr>.id", "key2");
+    key2.put("<xmlattr>.for", "node");
+    key2.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.name",'|'), "name");
+    key2.put(boost::property_tree::ptree::path_type("<xmlattr>|attr.type",'|'), "string");
+    graphml.add_child("key", key2);
+
+    ptree graph;
+    graph.put("<xmlattr>.id", "G");
+    graph.put("<xmlattr>.edgedefault", "undirected");
+    graph.put(boost::property_tree::ptree::path_type("<xmlattr>|parse.nodeids",'|'),"canonical");
+    graph.put(boost::property_tree::ptree::path_type("<xmlattr>|parse.edgeids",'|'),"canonical");
+    graph.put(boost::property_tree::ptree::path_type("<xmlattr>|parse.order",'|'),"nodesfirst");
+
+
+    ptree worddata;
+    worddata.put("<xmlattr>.key", "key1");
+    worddata.put("", "0");
+
+    uint64_t nodescount = 0;
+
+    for(int w = 0; w < 10; w++){
+        ptree node;
+        std::ostringstream nodeid, nodename;
+        nodeid << "n" << nodescount++;
+        nodename<<"pluto";
+
+        node.put("<xmlattr>.id", nodeid.str());
+        node.add_child("data", worddata);
+
+        ptree nodedata;
+        nodedata.put("", nodename.str());
+        nodedata.put("<xmlattr>.key", "key2");
+        node.add_child("data", nodedata);
+
+        graph.add_child("node", node);
+
+    }
+
+    ptree docdata;
+    docdata.put("<xmlattr>.key", "key1");
+    docdata.put("", "1");
+
+    for(int d = 0; d < 10; d++) {
+        std::ostringstream nodeid, nodename;
+        ptree node;
+        nodeid << "n" << nodescount++;
+        nodename<<"pluto_doc";
+
+        node.put("<xmlattr>.id", nodeid.str());
+        node.add_child("data", docdata);
+
+        ptree nodedata;
+        nodedata.put("", nodename.str());
+        nodedata.put("<xmlattr>.key", "key2");
+        node.add_child("data", nodedata);
+
+        graph.add_child("node", node);
+    }
+
+    ptree edgedata;
+    edgedata.put("<xmlattr>.key", "key0");
+    edgedata.put("", "1");
+    for(int e = 0; e < 10; e++){
+        std::ostringstream edgeid, startid, targetid;
+        startid<<"n"<<4;
+        targetid<<"n"<<5;
+
+        edgeid<<"e"<<e;
+        ptree edge;
+        edge.put("<xmlattr>.id", edgeid.str());
+        edge.put("<xmlattr>.source", startid.str());
+        edge.put("<xmlattr>.target", targetid.str());
+        edge.add_child("data", edgedata);
+        graph.add_child("edge", edge);
+    }
+
+    graphml.add_child("graph", graph);
+    xmlstructure.add_child("graphml", graphml);
+
+    write_xml(file, xmlstructure, boost::property_tree::xml_writer_make_settings<std::string>(' ', 4));
+
 }

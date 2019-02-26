@@ -21,7 +21,7 @@
 #include "RandomGen.h"
 
 using namespace std;
-
+using boost::property_tree::ptree;
 
 typedef bool correlated;
 typedef bool* matrix;
@@ -39,7 +39,7 @@ public:
     void SaveMeansVariances(const char *filename = "mainTable.csv");
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
-    void MakeCorpus();
+    void MakeGraph();
 
     uint64_t get(uint64_t component, uint64_t realization) {
         if (component < fNComponents && realization < fNRealizations)
