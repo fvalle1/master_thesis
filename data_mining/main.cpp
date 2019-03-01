@@ -1,8 +1,8 @@
 #include "MainTable.h"
 #include "TelegramWatch.h"
 #include "NullModel.h"
+#include "GraphGenerator.h"
 #include <omp.h>
-#include <iostream>
 
 
 int main(int argc, const char** argv) // minimal test driver
@@ -59,10 +59,9 @@ int main(int argc, const char** argv) // minimal test driver
                 TCGA->~MainTable();
                 break;
             case 6:
-                TCGA = new MainTable();
-                //TCGA->read("mainTable.csv", false, true);
-                TCGA->MakeGraph();
-                TCGA->~MainTable();
+                auto G = new GraphGenerator();
+                G->MakeGraph(500);
+                delete G;
                 break;
             default:
                 std::cerr << "missing arguments" << std::endl;

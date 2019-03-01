@@ -11,16 +11,16 @@
 
 ##Table
 ### TableCreation
-[TableCreation](TableCreation.ipynb) reads a folder with the data downloaded with **gdc-client** and creates a mainTable.csv dataset
+[Table_Creation](Table_Creation.ipynb) reads a folder with the data downloaded with **gdc-client** and creates a mainTable.csv dataset
 
 ### Table mining
-[TableMining](TableMining.ipynb) is useful to extract means and vars per tissues. It stores a *meanVariances.txt* file useful in next step
+[Table_Mining](Table_Mining.ipynb) is useful to extract means and vars per tissues. It stores a *meanVariances.txt* file useful in next step
 
 ### Table Analyzer
-[TableAnalyzer](TableAnalyzer.ipynb) is useful to plot expression per tissues histograms and FPKM means and distributions
+[Table_Analyzer](Table_Analyzer.ipynb) is useful to plot expression per tissues histograms and FPKM means and distributions
 
-## Protein coding
-[ProteinCoding](Protein Coding.ipynb) creates a *genes_pc.txt* file with all ENSG-id that are related to a protein-coding gene
+### Protein coding
+[Table_ProteinCoding](Table_ProteinCoding.ipynb) creates a *genes_pc.txt* file with all ENSG-id that are related to a protein-coding gene
 
 # Analysis
 ## data mining
@@ -42,7 +42,8 @@ Please write some options
 2 ---> GenerateNullData
 3 ---> read nullTable.csv
 4 ---> read and extimate correlation nullTable.csv
-5 ---> read and makeCorpus
+5 ---> read and extimate means and variances
+6 ---> read and makeCorpus
  0.811598s wall, 0.160000s user + 0.010000s system = 0.170000s CPU (20.9%)
 ```
 
@@ -55,7 +56,7 @@ Options with **extimate correlations** create a *correlations.dat* file with **H
 
 **Generate null data** option create a *nullTable.csv* file with null model generated data.
 
-**Make Corpus** option creates a *corpus.txt* file which is a great input *hieratical Stochastic Block Model*
+**Make Corpus** option creates a *graph.xml.gz* file which is a great input *hieratical Stochastic Block Model*
 
 ## Zipf
 Use [Zipf.ipynb](Zipf.ipynb) to plot Zipf and U (occurrence distribution)

@@ -15,14 +15,10 @@
 #include <cmath>
 #include <boost/tokenizer.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 
 #include "RandomGen.h"
 
 using namespace std;
-using boost::property_tree::ptree;
-
 typedef bool correlated;
 typedef bool* matrix;
 
@@ -33,13 +29,12 @@ public:
 
     ~MainTable();
 
-    void read(const char *tableFilename, bool saveAbundancesOccurrences, bool saveTitles = false);
+    void read(const char *tableFilename, bool saveAbundancesOccurrences);
     void readBinary();
 
     void SaveMeansVariances(const char *filename = "mainTable.csv");
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
-    void MakeGraph();
 
     uint64_t get(uint64_t component, uint64_t realization) {
         if (component < fNComponents && realization < fNRealizations)
@@ -63,6 +58,7 @@ protected:
 private:
     double GetEntropy(uint64_t l, double *X, uint64_t component = 1000000);
     double SumEntropy(uint64_t l, double *X);
+
 };
 
 #endif //THESIS_DATA_MINING_MAINTABLE_H
