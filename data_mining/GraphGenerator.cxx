@@ -36,7 +36,7 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
 
         cout << "acceptable documents: " << maxStorableDocs << endl;
         std::for_each(FullFilesList.begin() + 1, FullFilesList.begin() + 1 + maxStorableDocs, [&](string name) {
-            titles.insert(TitleId(name.substr(0, 35), -2)); //TCGA file-id has 36 chars
+            titles.insert(TitleId(name.substr(0, 36), -2)); //TCGA file-id has 36 chars
         });
     } else {
         cerr << "error parsing header" << endl;
@@ -73,7 +73,7 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
                               if (geneIt->second.second < 1000) { //check checkable condition
                                   if (currentRead >= 1) {
                                       geneIt->second.first = -1; //add to nodes
-                                      auto currentDocTitle = FullFilesList[currentDoc].substr(0, 35);
+                                      auto currentDocTitle = FullFilesList[currentDoc].substr(0, 36); //TCGA file_name has 36 chars
                                       auto currentDocIterator = titles.find(currentDocTitle);
                                       if (currentDocIterator != titles.end()) {
                                           currentDocIterator->second = -1; //add to nodes
@@ -85,7 +85,8 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
                               }
 
                               currentDoc++;
-                          });
+                          }
+            );
         }
         currentDoc = 1;
     }
@@ -156,11 +157,12 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
     write_xml(graphxmlfile, xmlstructure, boost::property_tree::xml_writer_make_settings<std::string>(' ', 4));
     graphxmlfile.close();
 
-    cout<<endl;
-
     //compress jast generate file
     system("rm -f graph.xml.gz");
     system("gzip graph.xml");
+    cout<<"graph.xml.gz ready..."<<endl;
+
+    cout<<endl;
 }
 
 void GraphGenerator::addEdge(ptree &graph, uint64_t idSource, uint64_t idTarget, uint64_t weight) const {

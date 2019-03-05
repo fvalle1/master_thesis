@@ -60,7 +60,7 @@ int main(int argc, const char** argv) // minimal test driver
                 break;
             case 6:
                 auto G = new GraphGenerator();
-                G->MakeGraph(500);
+                G->MakeGraph(5000);
                 delete G;
                 break;
             default:
