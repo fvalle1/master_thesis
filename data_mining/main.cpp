@@ -24,7 +24,7 @@ int main(int argc, const char** argv) // minimal test driver
         cout<<"3 ---> read nullTable.csv"<<endl;
         cout<<"4 ---> read and extimate correlation nullTable.csv"<<endl;
         cout<<"5 ---> read and extimate means and variances"<<endl;
-        cout<<"6 ---> read and makeCorpus"<<endl;
+        cout<<"6 ---> read and make bipartite graph"<<endl;
     }else {
         switch (std::atoi(argv[1])) {
             case 0:

@@ -92,7 +92,7 @@ class sbmtm():
                 if v_n[v] < n_min and g.vp['kind'][v]==1:
                     v_filter[v] = False
                 else:
-                    v_filter[v] = True
+                    v_filter[v] = True    
             g.set_vertex_filter(v_filter)
             g.purge_vertices()
             g.clear_filters()
@@ -363,8 +363,6 @@ class sbmtm():
         else:
             pass
 
-    def print_summary():
-        self.state.print_summary()
     ###########
     ########### HELPER FUNCTIONS
     ###########
