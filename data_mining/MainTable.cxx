@@ -284,7 +284,7 @@ double MainTable::SumEntropy(uint64_t l, double *X){
 }
 
 
-void MainTable::SaveMeansVariances(const char *filename) {
+void MainTable::SaveMeansVariances(const char *filename, bool considerZeros) {
     cout << "Reading " << filename << endl;
     fstream file(filename, std::ios::in);
     fstream meanVariances("meanVariances.csv", std::ios::out);
@@ -313,18 +313,26 @@ void MainTable::SaveMeansVariances(const char *filename) {
             for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
 //                cout<<*token<<endl;
                 double value = std::stod(*token);
+
                 if(value > fThreshold.first && value < fThreshold.second) {
                     //fast algo https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Naive_algorithm
                     sum += value;
                     sumsquare += value * value;
                     n += 1;
+                }else if(considerZeros){
+                    if(value < fThreshold.first) value = 0;
+                    sum+=value;
+                    sumsquare+=value*value;
+                    n+=1;
                 }
             }
 
-            if(n>2){
+            if(n>1){
                 long double average = sum / n;
                 long double variance = (sumsquare - (sum*sum)/n)/(n);// /n is on finite sample /(n-1) if infinite sample
                 meanVariances<<gene<<","<<average<<","<<variance<<","<<" "<<endl;
+            }else{
+                meanVariances<<gene<<","<<0<<","<<0<<","<<" "<<endl;
             }
         }
     }

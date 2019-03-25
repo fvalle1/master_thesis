@@ -1,0 +1,62 @@
+
+Overlap Results
+
+Collection(s):	C1, C2, C3, C4, C5, C6, C7, H
+# overlaps shown:	7
+# genesets in collections:	17810
+# genes in comparison (n):	40
+# genes in universe (N):	45956
+
+Gene Set Name	# Genes in Gene Set (K)	Description	# Genes in Overlap (k)	k/K	p-value	FDR q-value
+GO_OLFACTORY_RECEPTOR_ACTIVITY	425	Combining with an odorant and transmitting the signal from one side of the membrane to the other to initiate a change in cell activity in response to detection of smell.	7	0.0165	7.89E-8	9.41E-4
+GO_DETECTION_OF_STIMULUS	675	The series of events in which a stimulus is received by a cell or organism and converted into a molecular signal.	8	0.0119	1.06E-7	9.41E-4
+GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	524	The series of events required for an organism to receive a sensory chemical stimulus, convert it to a molecular signal, and recognize and characterize the signal. This is a neurological process.	7	0.0134	3.24E-7	1.92E-3
+GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	1193	A series of molecular signals that proceeds with an activated receptor promoting the exchange of GDP for GTP on the alpha-subunit of an associated heterotrimeric G-protein complex. The GTP-bound activated alpha-G-protein then dissociates from the beta- and gamma-subunits to further transmit the signal within the cell. The pathway begins with receptor-ligand interaction, or for basal GPCR signaling the pathway begins with the receptor activating its G protein in the absence of an agonist, and ends with regulation of a downstream cellular process, e.g. transcription.  The pathway can start from the plasma membrane, Golgi or nuclear membrane (PMID:24568158 and PMID:16902576).	9	0.0075	6.89E-7	2.77E-3
+GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	879	Combining with an extracellular signal and transmitting the signal across the membrane by activating an associated G-protein; promotes the exchange of GDP for GTP on the alpha subunit of a heterotrimeric G-protein complex.	8	0.0091	7.76E-7	2.77E-3
+GO_SENSORY_PERCEPTION	938	The series of events required for an organism to receive a sensory stimulus, convert it to a molecular signal, and recognize and characterize the signal. This is a neurological process.	8	0.0085	1.26E-6	3.74E-3
+GO_NEUROLOGICAL_SYSTEM_PROCESS	1242	A organ system process carried out by any of the organs or tissues of neurological system.	8	0.0064	9.92E-6	2.52E-2
+
+
+Gene/Gene Set Overlap Matrix
+
+Entrez Gene Id	Gene Symbol	Gene Description	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+390144	OR5D16	olfactory receptor, family 5, subfamily D, member 16	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+403239	OR2T27	olfactory receptor, family 2, subfamily T, member 27	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+26696	OR2T1	olfactory receptor, family 2, subfamily T, member 1	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+283092	OR4C13	olfactory receptor, family 4, subfamily C, member 13	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+403278	OR5K4	olfactory receptor, family 5, subfamily K, member 4	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+283110	OR52Z1	olfactory receptor, family 52, subfamily Z, member 1 (gene/pseudogene)	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+121129	OR2AP1	olfactory receptor, family 2, subfamily AP, member 1	GO_OLFACTORY_RECEPTOR_ACTIVITY	GO_DETECTION_OF_STIMULUS	GO_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS	GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+2652	OPN1MW	opsin 1 (cone pigments), medium-wave-sensitive		GO_DETECTION_OF_STIMULUS		GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY	GO_G_PROTEIN_COUPLED_RECEPTOR_ACTIVITY	GO_SENSORY_PERCEPTION	GO_NEUROLOGICAL_SYSTEM_PROCESS
+256933	NPB	neuropeptide B				GO_G_PROTEIN_COUPLED_RECEPTOR_SIGNALING_PATHWAY			
+6818	SULT1A3	sulfotransferase family, cytosolic, 1A, phenol-preferring, member 3							
+445329	SULT1A4	sulfotransferase family, cytosolic, 1A, phenol-preferring, member 4							
+79008	SLX1B	SLX1 structure-specific endonuclease subunit homolog B (S. cerevisiae)							
+548593	SLX1A	SLX1 structure-specific endonuclease subunit homolog A (S. cerevisiae)							
+56001	NXF2	nuclear RNA export factor 2							
+728343	NXF2B	nuclear RNA export factor 2B							
+100506164	HSFX1	heat shock transcription factor family, X linked 1							
+100130086	HSFX2	heat shock transcription factor family, X linked 2							
+29057	FAM156A	family with sequence similarity 156, member A							
+727866	FAM156B	family with sequence similarity 156, member B							
+7730	ZNF177	zinc finger protein 177							
+3441	IFNA4	interferon, alpha 4							
+404037	HAPLN4	hyaluronan and proteoglycan link protein 4							
+150221	RIMBP3C	RIMS binding protein 3C							
+54065	FAM165B	family with sequence similarity 165, member B							
+165721	DNAJB8	DnaJ (Hsp40) homolog, subfamily B, member 8							
+730262	PPIAL4E	peptidylprolyl isomerase A (cyclophilin A)-like 4E							
+692312	PPAN-P2RY11	PPAN-P2RY11 readthrough							
+162699	TCEB3C	transcription elongation factor B polypeptide 3C (elongin A3)							
+386724	AMIGO3	adhesion molecule with Ig-like domain 3							
+729873	TBC1D3	TBC1 domain family, member 3							
+653404	FOXD4L6	forkhead box D4-like 6							
+285877	POM121L12	POM121 membrane glycoprotein-like 12							
+283767	GOLGA6L1	golgin A6 family-like 1							
+389852	SPACA5	sperm acrosome associated 5							
+100526740	ATP5J2-PTCD1	ATP5J2-PTCD1 readthrough							
+100529240	ZNF816-ZNF321P	ZNF816-ZNF321P readthrough							
+100996928		&nbsp;							
+101060301		&nbsp;							
+106821730		&nbsp;							
+202658	TRIM39-RPP21	TRIM39-RPP21 readthrough							

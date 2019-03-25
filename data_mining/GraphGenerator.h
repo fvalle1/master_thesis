@@ -22,7 +22,8 @@ typedef uint64_t checkable;
 
 class GraphGenerator {
 public:
-    void MakeGraph(uint64_t maxStorableDocs = 100);
+    GraphGenerator(bool countPropertyNode=true):fCounts(countPropertyNode){};
+    void MakeGraph(uint64_t maxStorableDocs);
 
 private:
     void addKeyAttrs(ptree &graphml) const;
@@ -32,6 +33,8 @@ private:
     std::vector<std::string> tokenize(const std::string &);
 
     bool testWord(string word, checkable parameter);
+
+    bool fCounts;
 };
 
 

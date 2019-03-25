@@ -174,8 +174,10 @@ void GraphGenerator::addEdge(ptree &graph, uint64_t idSource, uint64_t idTarget,
     weightname<<weight;
 
     ptree edgedata;
-    edgedata.put("<xmlattr>.key", "key0");
-    edgedata.put("", weightname.str());
+    if(fCounts) {
+        edgedata.put("<xmlattr>.key", "key0");
+        edgedata.put("", weightname.str());
+    }
 
     ptree edge;
     edge.put("<xmlattr>.id", edgename.str());

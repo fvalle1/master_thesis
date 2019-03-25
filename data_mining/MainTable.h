@@ -32,7 +32,7 @@ public:
     void read(const char *tableFilename, bool saveAbundancesOccurrences);
     void readBinary();
 
-    void SaveMeansVariances(const char *filename = "mainTable.csv");
+    void SaveMeansVariances(const char *filename, bool considerZeros = false);
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
 
