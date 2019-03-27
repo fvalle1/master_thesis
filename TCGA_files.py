@@ -47,7 +47,10 @@ def makePie(df, level, c, whatToLookFor = ['disease_type']):
     fig = plt.figure(figsize=(60,15))
     ax = fig.subplots(1, len(whatToLookFor))
     for i,lookFor in enumerate(whatToLookFor):
-        datatotestarr = df[lookFor].values
+        try:
+            datatotestarr = df[lookFor].values
+        except:
+            datatotestarr = df[lookFor]
         utype, counts = np.unique(datatotestarr, return_counts=True)
         total = len(datatotestarr)
         try:
@@ -90,6 +93,6 @@ def makeTopicPie(df, level, whatToLookFor = ['disease_type']):
 def queryFiles(files):
     df = pd.DataFrame(columns=fields.split(','))
     for i,f  in enumerate(files):
-        df = df.append(queryFile(f), ignore_index=True)
+        df = df.append(queryFile(f), ignore_index=True, sort=True)
     #print(df.head())
     return df

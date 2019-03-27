@@ -4,7 +4,15 @@
 
 #include "GraphGenerator.h"
 
-void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
+
+GraphGenerator::GraphGenerator(uint64_t maxStorableDocs, bool weighted, bool countPropertyNode):
+        fCounts(countPropertyNode),
+        fWeighted(weighted),
+        fMaxStorableDocs(maxStorableDocs){
+    if(!fWeighted) fCounts=true;
+}
+
+void GraphGenerator::MakeGraph() {
     cout << "Making graph.xml" << endl;
     fstream graphxmlfile("graph.xml", std::ios::out);
     fstream tableFile("mainTable.csv", std::ios::in);
@@ -32,10 +40,10 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
     vector<string> FullFilesList;
     if (getline(tableFile, header).good()) {
         FullFilesList = tokenize(header);
-        if (FullFilesList.size() < maxStorableDocs + 1) maxStorableDocs = FullFilesList.size() - 1;
+        if (FullFilesList.size() < fMaxStorableDocs + 1) fMaxStorableDocs = FullFilesList.size() - 1;
 
-        cout << "acceptable documents: " << maxStorableDocs << endl;
-        std::for_each(FullFilesList.begin() + 1, FullFilesList.begin() + 1 + maxStorableDocs, [&](string name) {
+        cout << "acceptable documents: " << fMaxStorableDocs << endl;
+        std::for_each(FullFilesList.begin() + 1, FullFilesList.begin() + 1 + fMaxStorableDocs, [&](string name) {
             titles.insert(TitleId(name.substr(0, 36), -2)); //TCGA file-id has 36 chars
         });
     } else {
@@ -66,11 +74,11 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
         printf("\r%s", genename.c_str());
         auto geneIt = words.find(genename);
         if (geneIt != words.end()) {//if have info about word..can look for edges
-            std::for_each(tokenizedline.begin() + 1, tokenizedline.begin() + 1 + maxStorableDocs,
+            std::for_each(tokenizedline.begin() + 1, tokenizedline.begin() + 1 + fMaxStorableDocs,
                           [&](string fpkm_string) {
                               auto currentRead = std::stoull(fpkm_string); //weight
                               //condition to work on
-                              if (geneIt->second.second < 1000) { //check checkable condition
+                              if (geneIt->second.second < 0.25 * fMaxStorableDocs) { //check checkable condition
                                   if (currentRead >= 1) {
                                       geneIt->second.first = -1; //add to nodes
                                       auto currentDocTitle = FullFilesList[currentDoc].substr(0, 36); //TCGA file_name has 36 chars
@@ -141,8 +149,11 @@ void GraphGenerator::MakeGraph(uint64_t maxStorableDocs) {
     BOOST_FOREACH(Weight_WordTitle e,edges){
                     auto wordIndex = words.find(e.second.first)->second.first;
                     auto docIndex = titles.find(e.second.second)->second;
-                    addEdge(graph, docIndex, wordIndex, e.first);
-
+                    if(fCounts){
+                        addEdge(graph, docIndex, wordIndex, e.first);
+                    }else{
+                        for(uint64_t w = 0; w < e.first; w++) addEdge(graph, docIndex, wordIndex, e.first);
+                    }
                 }
 
     //clean vectors
@@ -260,3 +271,4 @@ std::vector<std::string> GraphGenerator::tokenize( const std::string& line )
     boost::tokenizer< boost::escaped_list_separator<char> > tokenizer( line, sep ) ;
     return std::vector<std::string>(tokenizer.begin(), tokenizer.end()) ;
 }
+
