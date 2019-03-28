@@ -11,6 +11,7 @@ fields = [
     "case_id",
     "primary_site",
     "disease_type",
+    "project.project_id",
     "diagnoses.tumor_stage",
     "diagnoses.tumor_grade",
     "diagnoses.primary_diagnosis",
