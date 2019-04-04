@@ -39,22 +39,26 @@ def geneinfo(genename, df, nfiles):
         return {}
     return genedict
 
-def genedistr(genedict, bins = 50):
+def genedistr(genedict, bins = 50, ax = None, density=False, label='', save=True):
     """
     Plot distriution across tissues
     """
     maxfpkm = np.max(genedict['data'])
     width = float(maxfpkm) / bins
     _range = (0 - 0.5 * width, maxfpkm + 0.5 * width)
-    fig = plt.figure(figsize=(15, 5))
-    n, bin_edges, _ = plt.hist(genedict['data'], lw=1.5, density=False, histtype='step', range=_range, bins=bins)
-    plt.title(genedict['name'], fontsize=16)
-    plt.xlabel('FPKM', fontsize=16)
-    plt.ylabel('#', fontsize=16)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.show()
-    fig.savefig("plot/genes/%s_distr.pdf"%(genedict['name']))
+    if ax == None:
+        fig = plt.figure(figsize=(15, 5))
+        ax = fig.subplots()
+    else:
+        fig=ax.get_figure()
+    n, bin_edges, _ = ax.hist(genedict['data'], lw=1.5, density=density, histtype='step', range=_range, bins=bins, label=label)
+    ax.set_title(genedict['name'], fontsize=16)
+    ax.set_xlabel('FPKM', fontsize=16)
+    ax.set_ylabel('#', fontsize=16)
+    ax.set_yscale('log')
+    ax.set_xscale('log')
+    if save:
+        fig.savefig("plot/genes/%s_distr.pdf"%(genedict['name']))
 
 def geneplot(genedict):
     """

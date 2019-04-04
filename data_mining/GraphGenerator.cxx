@@ -78,7 +78,7 @@ void GraphGenerator::MakeGraph() {
                           [&](string fpkm_string) {
                               auto currentRead = std::stoull(fpkm_string); //weight
                               //condition to work on
-                              if (geneIt->second.second < 0.25 * fMaxStorableDocs) { //check checkable condition
+                              if (geneIt->second.second < 1 * fMaxStorableDocs) { //check checkable condition
                                   if (currentRead >= 1) {
                                       geneIt->second.first = -1; //add to nodes
                                       auto currentDocTitle = FullFilesList[currentDoc].substr(0, 36); //TCGA file_name has 36 chars

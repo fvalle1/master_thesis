@@ -15,6 +15,7 @@ data_counts/
 data_fpkm/
 data_fpkmuq/
 data_mining/master/
+results/
 
 *.o
 *.out

@@ -41,7 +41,7 @@ int main(int argc, const char** argv) // minimal test driver
                 break;
             case 2:
                 TCGA = new MainTable();
-                TCGA->SaveMeansVariances("mainTable.csv", false);
+                TCGA->SaveMeansVariances("mainTable.csv", true);
                 TCGA->~MainTable();
                 break;
             case 3:
@@ -65,7 +65,7 @@ int main(int argc, const char** argv) // minimal test driver
                 TCGA->~MainTable();
                 break;
             case 7:
-                auto G = new GraphGenerator(5000, true, true);
+                auto G = new GraphGenerator(1000, true, true);
                 G->MakeGraph();
                 delete G;
                 break;
