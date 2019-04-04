@@ -4,8 +4,8 @@
 
 #include "MainTable.h"
 
-const std::pair<double, double> MainTable::fThreshold = {0.1, 1e5}; //as stated by Matteo Cereda
-
+//const std::pair<double, double> MainTable::fThreshold = {0.1, 1e5}; //as stated by Matteo Cereda for FPKM
+const std::pair<double, double> MainTable::fThreshold = {0, 1e20}; //
 
 MainTable::MainTable() {
     //init size of the table
@@ -53,20 +53,21 @@ void MainTable::read(const char *tableFilename, bool saveAbundancesOccurrences) 
                 fNRealizations = tokenizedLine.size() - 1;
                 firstRead = true;
             }
-            if (idata % 5000 == 0) printf("\r%llu/%llu", idata, fNRealizations * fNComponents);
+            if (idata % fNRealizations == 0) printf("\r%llu/%llu", idata, fNRealizations * fNComponents);
 
             //+1 because first column is component-id
             for (auto token = tokenizedLine.begin() + 1; token != tokenizedLine.end(); token++) {
 //                cout<<*token<<endl;
                 double value = std::stod(*token);
                 bool binaryValue = (value > MainTable::fThreshold.first) && (value < MainTable::fThreshold.second);
-                fData[idata++] = binaryValue;
+                fData[idata] = binaryValue;
 
                 if (saveAbundancesOccurrences) {
                     A[idata / fNRealizations] += (binaryValue ? value : 0.); //underthreshold shoud not be simulated
                     O[idata / fNRealizations] += (binaryValue ? 1. : 0.) / fNRealizations;
                 }
                 VocabularySize[idata % fNRealizations] += value;
+                idata++;
             }
             actualWords++;
         }
@@ -168,17 +169,16 @@ void MainTable::SaveHeapsData(const double *VocabularySize) {
     cout << "Saving Heaps data" << endl;
     fstream file("heaps.dat", std::ios::out);
 
-    for (uint64_t realization = 0; realization < fNRealizations; ++realization) {
-        printf("\r%llu/%llu", realization+1, fNRealizations);
+    for (uint64_t realisation = 0; realisation < fNRealizations; ++realisation) {
+        printf("\r%llu/%llu", realisation+1, fNRealizations);
 
         uint64_t cNumberOfDifferentWords = 0;
-        long double cVocabularySize = VocabularySize[realization];
+        long double cVocabularySize = VocabularySize[realisation];
 
 #pragma omp parallel for reduction(+:cNumberOfDifferentWords)
         for (uint64_t component = 0; component < fNComponents; component++) {
-            if (get(component, realization) != 0) cNumberOfDifferentWords++;
+            if (get(component, realisation) != 0) cNumberOfDifferentWords++;
         }
-
         file << cVocabularySize << "," << cNumberOfDifferentWords << endl;
         file.flush();
     }

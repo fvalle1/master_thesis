@@ -36,9 +36,9 @@ public:
     void SaveBinary(const char *filename = "binaryTable.csv");
     void ExtimateCorrelations(const char *filename = "correlations.dat");
 
-    uint64_t get(uint64_t component, uint64_t realization) {
-        if (component < fNComponents && realization < fNRealizations)
-            return fData[fNRealizations * component + realization] ? 1 : 0;
+    uint64_t get(uint64_t component, uint64_t realisation) {
+        if (component < fNComponents && realisation < fNRealizations)
+            return fData[fNRealizations * component + realisation] ? 1 : 0;
         else return 0;
     };
 

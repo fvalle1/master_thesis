@@ -47,7 +47,7 @@ void NullModel::GenerateNullData() {
             printf("\r%llu/%llu",effectivelyLoadedRealization,fNRealizations);
 
             for(uint64_t component = 0; component < fNComponents; component++) {
-                nullData[fNRealizations * component + effectivelyLoadedRealization] = static_cast<uint64_t>(counts[component]);
+                nullData[fNRealizations * component + effectivelyLoadedRealization] = counts[component];
             }
 
             for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
@@ -60,7 +60,7 @@ void NullModel::GenerateNullData() {
         fstream file("nullTable.csv", std::ios::out);
         file<<endl; //mime header line
         for(uint64_t component = 0; component < fNComponents; component++) {
-            file<<",";
+            file<<","; //mime index column
             printf("\r%llu/%llu", component+1, fNComponents);
             for (uint64_t realization = 0; realization < fNRealizations; realization++) {
                 file << nullData[fNRealizations * component + realization];
