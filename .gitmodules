@@ -1,6 +1,3 @@
 [submodule "hSBM_Topicmodel"]
 	path = hSBM_Topicmodel
-	url = https://github.com/martingerlach/hSBM_Topicmodel.git
-[submodule "goatools"]
-	path = goatools
-	url = git@github.com:tanghaibao/goatools.git
+	url = git@github.com:fvalle1/hSBM_Topicmodel.git
