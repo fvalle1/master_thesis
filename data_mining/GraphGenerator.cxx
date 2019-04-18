@@ -5,10 +5,11 @@
 #include "GraphGenerator.h"
 
 
-GraphGenerator::GraphGenerator(uint64_t maxStorableDocs, bool weighted, bool countPropertyNode):
+GraphGenerator::GraphGenerator(uint64_t maxStorableDocs, float maxOccurrence, bool weighted, bool countPropertyNode):
         fCounts(countPropertyNode),
         fWeighted(weighted),
-        fMaxStorableDocs(maxStorableDocs){
+        fMaxStorableDocs(maxStorableDocs),
+        fMaxOccurrence(maxOccurrence){
     if(!fWeighted) fCounts=true;
 }
 
@@ -43,8 +44,9 @@ void GraphGenerator::MakeGraph() {
         if (FullFilesList.size() < fMaxStorableDocs + 1) fMaxStorableDocs = FullFilesList.size() - 1;
 
         cout << "acceptable documents: " << fMaxStorableDocs << endl;
+        cout << "acceptable occurrence: " << fMaxOccurrence << endl;
         std::for_each(FullFilesList.begin() + 1, FullFilesList.begin() + 1 + fMaxStorableDocs, [&](string name) {
-            titles.insert(TitleId(name.substr(0, 36), -2)); //TCGA file-id has 36 chars
+            titles.insert(TitleId(name.substr(0, BioParameters::getSampleIdLenght()), -2));
         });
     } else {
         cerr << "error parsing header" << endl;
@@ -62,7 +64,7 @@ void GraphGenerator::MakeGraph() {
         auto tokenizedLine = tokenize(line);
         auto genename = *(tokenizedLine.begin());
         auto geneocc = std::stoull(*(tokenizedLine.begin() + 4));
-        words.insert(pair<string, IdCheckable>(genename.substr(0, 15), IdCheckable(-2, geneocc))); //ENSG has 15 characters
+        words.insert(pair<string, IdCheckable>(genename.substr(0, BioParameters::getENSLenght()), IdCheckable(-2, geneocc))); //ENSG has 15 characters ENSMU18
     }
     geneInfoFile.close();
 
@@ -70,7 +72,7 @@ void GraphGenerator::MakeGraph() {
     uint64_t currentDoc = 1;
     while (getline(tableFile, line).good()) {
         auto tokenizedline = tokenize(line);
-        auto genename = (tokenizedline.begin())->substr(0, 15);
+        auto genename = (tokenizedline.begin())->substr(0, BioParameters::getENSLenght());
         printf("\r%s", genename.c_str());
         auto geneIt = words.find(genename);
         if (geneIt != words.end()) {//if have info about word..can look for edges
@@ -78,10 +80,10 @@ void GraphGenerator::MakeGraph() {
                           [&](string fpkm_string) {
                               auto currentRead = std::stoull(fpkm_string); //weight
                               //condition to work on
-                              if (geneIt->second.second < 1 * fMaxStorableDocs) { //check checkable condition
+                              if (geneIt->second.second <= fMaxOccurrence) { //check checkable condition
                                   if (currentRead >= 1) {
                                       geneIt->second.first = -1; //add to nodes
-                                      auto currentDocTitle = FullFilesList[currentDoc].substr(0, 36); //TCGA file_name has 36 chars
+                                      auto currentDocTitle = FullFilesList[currentDoc].substr(0, BioParameters::getSampleIdLenght());
                                       auto currentDocIterator = titles.find(currentDocTitle);
                                       if (currentDocIterator != titles.end()) {
                                           currentDocIterator->second = -1; //add to nodes
@@ -121,7 +123,7 @@ void GraphGenerator::MakeGraph() {
     /*
     * Add documents nodes
     */
-    cout<<"adding documents.."<<endl;
+    cout<<"adding "<< titles.size() << " documents.."<<endl;
     BOOST_FOREACH(string title, titles | boost::adaptors::map_keys){
                     auto cDoc = titles.find(title);
                     if (cDoc->second==-1){
@@ -133,7 +135,7 @@ void GraphGenerator::MakeGraph() {
     /*
     * Add word nodes
     */
-    cout<<"adding words.."<<endl;
+    cout<<"adding "<< words.size() <<" words.."<<endl;
     BOOST_FOREACH(string gene, words | boost::adaptors::map_keys){
                     auto geneInfo = words.find(gene);
                     if(geneInfo->second.first==-1) {//have to add as node
@@ -145,8 +147,11 @@ void GraphGenerator::MakeGraph() {
     * Add edges
     */
 
-    cout<<"adding edges.."<<endl;
+    auto nEdges = edges.size();
+    int cEdge = 0;
+    cout<<"adding "<< nEdges <<" edges.."<<endl;
     BOOST_FOREACH(Weight_WordTitle e,edges){
+                    printf("\r%d/%lu edges",++cEdge, nEdges);
                     auto wordIndex = words.find(e.second.first)->second.first;
                     auto docIndex = titles.find(e.second.second)->second;
                     if(fCounts){
@@ -155,12 +160,14 @@ void GraphGenerator::MakeGraph() {
                         for(uint64_t w = 0; w < e.first; w++) addEdge(graph, docIndex, wordIndex, e.first);
                     }
                 }
+    cout << endl;
 
     //clean vectors
     titles.clear();
     words.clear();
     edges.clear();
 
+    cout<<"adding childs.."<<endl;
     graphml.add_child("graph", graph);
     xmlstructure.add_child("graphml", graphml);
 
@@ -271,4 +278,3 @@ std::vector<std::string> GraphGenerator::tokenize( const std::string& line )
     boost::tokenizer< boost::escaped_list_separator<char> > tokenizer( line, sep ) ;
     return std::vector<std::string>(tokenizer.begin(), tokenizer.end()) ;
 }
-

@@ -305,7 +305,8 @@ void MainTable::SaveMeansVariances(const char *filename, bool considerZeros) {
             printf("\rngenes: %llu", ++ngenes);
 
             // first column is ENSG-id
-            auto gene = (*(tokenizedLine.begin())).substr(0,15);
+            auto gene = (*(tokenizedLine.begin())).substr(0,BioParameters::getENSLenght());
+
             long double sum = 0.;
             long double sumsquare = 0.;
             uint64_t n = 0;

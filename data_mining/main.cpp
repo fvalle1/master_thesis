@@ -1,6 +1,6 @@
 #include "MainTable.h"
 #include "TelegramWatch.h"
-#include "NullModel.h"
+#include "SamplingModel.h"
 #include "GraphGenerator.h"
 #include <omp.h>
 
@@ -21,7 +21,7 @@ int main(int argc, const char** argv) // minimal test driver
         cout<<"0 ---> read mainTable.csv"<<endl;
         cout<<"1 ---> read and extimate correlation mainTable.csv"<<endl;
         cout<<"2 ---> extimate means and variances"<<endl;
-        cout<<"3 ---> GenerateNullData"<<endl;
+        cout<<"3 ---> Do the sampling"<<endl;
         cout<<"4 ---> read nullTable.csv"<<endl;
         cout<<"5 ---> nullTable.csv read and extimate correlation"<<endl;
         cout<<"6 ---> nullTable.csv extimate means and variances"<<endl;
@@ -45,8 +45,8 @@ int main(int argc, const char** argv) // minimal test driver
                 TCGA->~MainTable();
                 break;
             case 3:
-                TCGA = new NullModel();
-                ((NullModel *) (TCGA))->GenerateNullData();
+                TCGA = new SamplingModel();
+                ((SamplingModel *) (TCGA))->GenerateNullData();
                 TCGA->~MainTable();
                 break;
             case 4:
@@ -61,11 +61,11 @@ int main(int argc, const char** argv) // minimal test driver
                 TCGA->~MainTable();
             case 6:
                 TCGA = new MainTable();
-                TCGA->SaveMeansVariances("nullTable.csv", false);
+                TCGA->SaveMeansVariances("nullTable.csv", true);
                 TCGA->~MainTable();
                 break;
             case 7:
-                auto G = new GraphGenerator(1000, true, true);
+                auto G = new GraphGenerator(5000, 1. ,true, true);
                 G->MakeGraph();
                 delete G;
                 break;

@@ -10,11 +10,14 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#include <map>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+
+#include "BioParameters.h"
 
 using namespace std;
 using boost::property_tree::ptree;
@@ -22,7 +25,7 @@ typedef uint64_t checkable;
 
 class GraphGenerator {
 public:
-    GraphGenerator(uint64_t maxStorableDocs = 1000, bool weighted = true, bool countPropertyNode = true);
+    GraphGenerator(uint64_t maxStorableDocs = 1000,  float maxOccurrence = 0.5, bool weighted = true, bool countPropertyNode = true);
     void MakeGraph();
 
 private:
@@ -35,6 +38,7 @@ private:
 
     bool fCounts;
     bool fWeighted;
+    float fMaxOccurrence;
     uint64_t fMaxStorableDocs;
 };
 

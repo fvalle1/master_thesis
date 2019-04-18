@@ -17,6 +17,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 #include "RandomGen.h"
+#include "BioParameters.h"
 
 using namespace std;
 typedef bool correlated;
