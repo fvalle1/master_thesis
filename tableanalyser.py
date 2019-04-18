@@ -22,11 +22,13 @@ def geneinfo(genename, df, nfiles,metric='fpkm'):
     try:
         genemean = np.nanmean(genedata)
         genevariance = np.nanvar(genedata)
+        geneoccurrence = float(len(genedata.nonzero()[0]))/len(genedata)
         genedict = {
             'name':genename,
             'avg' : genemean,
             'var': genevariance,
             'data' : genedata,
+            'occ' : geneoccurrence
         }
         try:
             q = mg.getgenes(genename[:15], 'name,symbol,refseq.rna,type_of_gene,bp')[0]
@@ -38,7 +40,7 @@ def geneinfo(genename, df, nfiles,metric='fpkm'):
             pass
         print("mean: %10.2f"%genemean)
         print("var: %10.2f"%genevariance)
-        print("occ: %10.2f"%(len(genedata.nonzero()[0])/len(genedata)))
+        print("occ: %10.2f"%(geneoccurrence))
     except:
         return {}
     return genedict
