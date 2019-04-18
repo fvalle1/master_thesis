@@ -2,9 +2,9 @@
 // Created by Filippo Valle on 2019-01-16.
 //
 
-#include "NullModel.h"
+#include "SamplingModel.h"
 
-void NullModel::GenerateNullData() {
+void SamplingModel::GenerateNullData(int maxStatistic) {
     cout << "Generating null model" << endl;
     fstream occ("A.dat", ios_base::in);
     fstream voc("vocabulary_size.dat", std::ios::in);
@@ -26,7 +26,6 @@ void NullModel::GenerateNullData() {
         auto rng = RandomGen::Instance();
 
         // Choose a random multinomial
-        //std::sort(probabilities.begin(), probabilities.end()); //sort to avoid strange behaviours
         boost::random::discrete_distribution<uint64_t> distr(probabilities);
 
         probabilities.clear(); //a copy is stored in boost::ranodm::dicrete_distribution
@@ -43,11 +42,12 @@ void NullModel::GenerateNullData() {
         cout<<"generating data.."<<endl;
         //for realization
         while (voc >> M) {
+            for(int statistics = 0; statistics < maxStatistic; statistics++)
             for(uint64_t word = 0; word < M; word++) counts[distr(rng)]++;
             printf("\r%llu/%llu",effectivelyLoadedRealization,fNRealizations);
 
             for(uint64_t component = 0; component < fNComponents; component++) {
-                nullData[fNRealizations * component + effectivelyLoadedRealization] = counts[component];
+                nullData[fNRealizations * component + effectivelyLoadedRealization] = static_cast<uint64_t>(counts[component]/maxStatistic);
             }
 
             for(uint64_t i = 0; i < fNComponents; i++) counts[i]=0;
@@ -82,7 +82,7 @@ void NullModel::GenerateNullData() {
     }
 }
 
-void NullModel::GenerateNullBinary() const {
+void SamplingModel::GenerateNullBinary() const {
     cout << "Generating null model binary" << endl;
     fstream occ("O.dat", ios_base::in);
 

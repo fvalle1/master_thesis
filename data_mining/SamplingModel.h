@@ -11,12 +11,12 @@
 #include <boost/random/discrete_distribution.hpp>
 #include "pcg_random.hpp"
 
-class NullModel : public MainTable{
+class SamplingModel : public MainTable{
 public:
-    NullModel():MainTable(){};
-    ~NullModel() = default;;
+    SamplingModel():MainTable(){};
+    ~SamplingModel() = default;
 
-    void GenerateNullData();
+    void GenerateNullData(int maxStatistic = 10);
     void GenerateNullBinary() const;
 
 
