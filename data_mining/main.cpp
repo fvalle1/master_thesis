@@ -46,7 +46,7 @@ int main(int argc, const char** argv) // minimal test driver
                 break;
             case 3:
                 TCGA = new SamplingModel();
-                ((SamplingModel *) (TCGA))->GenerateNullData();
+                ((SamplingModel *) (TCGA))->GenerateNullData(1);
                 TCGA->~MainTable();
                 break;
             case 4:

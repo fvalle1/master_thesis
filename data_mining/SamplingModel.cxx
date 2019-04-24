@@ -5,7 +5,7 @@
 #include "SamplingModel.h"
 
 void SamplingModel::GenerateNullData(int maxStatistic) {
-    cout << "Generating null model" << endl;
+    cout << "Generating null model averaging over "<<maxStatistic << endl;
     fstream occ("A.dat", ios_base::in);
     fstream voc("vocabulary_size.dat", std::ios::in);
 
@@ -43,7 +43,7 @@ void SamplingModel::GenerateNullData(int maxStatistic) {
         //for realization
         while (voc >> M) {
             for(int statistics = 0; statistics < maxStatistic; statistics++)
-            for(uint64_t word = 0; word < M; word++) counts[distr(rng)]++;
+                for(uint64_t word = 0; word < M; word++) counts[distr(rng)]++;
             printf("\r%llu/%llu",effectivelyLoadedRealization,fNRealizations);
 
             for(uint64_t component = 0; component < fNComponents; component++) {
@@ -64,8 +64,8 @@ void SamplingModel::GenerateNullData(int maxStatistic) {
             printf("\r%llu/%llu", component+1, fNComponents);
             for (uint64_t realization = 0; realization < fNRealizations; realization++) {
                 file << nullData[fNRealizations * component + realization];
-                 if(realization < effectivelyLoadedRealization - 1) file << ",";
-                 else break;
+                if(realization < effectivelyLoadedRealization - 1) file << ",";
+                else break;
             }
             file<<"\n";
         }

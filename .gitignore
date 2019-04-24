@@ -16,6 +16,9 @@ data_fpkm/
 data_fpkmuq/
 data_mining/master/
 results/
+DATA_MOUSE/
+
+manifest.txt
 
 *.o
 *.out
@@ -23,7 +26,6 @@ results/
 *.png
 *.xml
 *.gz
-*.txt
 corpus.*
 *.csv
 *.tsv
