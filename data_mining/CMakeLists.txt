@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(thesis_data_mining)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
