@@ -89,3 +89,12 @@ Use [Zipf.ipynb](Zipf.ipynb) to plot Zipf and U (occurrence distribution)
 
 ## Heaps
 Use [Heaps.ipynb](Heaps.ipynb) to plot Heaps distibution
+
+# Topic Modelling
+
+Topic model can be run from Docker repository: https://hub.docker.com/r/fvalle01/hsbm
+```bash
+docker run -p8888:8888 -it fvalle01/hsbm bash
+
+jupyter notebook --ip 0.0.0.0 --allow-root
+```
