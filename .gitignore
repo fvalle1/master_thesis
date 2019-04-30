@@ -17,6 +17,7 @@ data_fpkmuq/
 data_mining/master/
 results/
 DATA_MOUSE/
+plot/
 
 manifest.txt
 
@@ -34,3 +35,5 @@ corpus.*
 *.jpg
 
 *.red
+
+gtex/biobank_collection_20190430_070519\.txt
