@@ -21,7 +21,7 @@
 
 using namespace std;
 using boost::property_tree::ptree;
-typedef uint64_t checkable;
+typedef float checkable;
 
 class GraphGenerator {
 public:

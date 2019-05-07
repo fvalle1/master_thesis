@@ -63,6 +63,7 @@ add_library(graphgenerator_ext SHARED
         RandomGen.cxx)
 # don't prepend wrapper library name with lib
 set_target_properties(graphgenerator_ext PROPERTIES PREFIX "" )
-set_target_properties(graphgenerator_ext PROPERTIES SUFFIX ".so")  # must be .so (not .dylib)
+# must be .so (not .dylib)
+set_target_properties(graphgenerator_ext PROPERTIES SUFFIX ".so")
 
 target_link_libraries(graphgenerator_ext ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} graphgenerator curl)

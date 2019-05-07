@@ -63,7 +63,7 @@ void GraphGenerator::MakeGraph() {
     while (getline(geneInfoFile, line).good()) {
         auto tokenizedLine = tokenize(line);
         auto genename = *(tokenizedLine.begin());
-        auto geneocc = std::stoull(*(tokenizedLine.begin() + 4));
+        auto geneocc = std::stod(*(tokenizedLine.begin() + 4));
         words.insert(pair<string, IdCheckable>(genename.substr(0, BioParameters::getENSLenght()), IdCheckable(-2, geneocc))); //ENSG has 15 characters ENSMU18
     }
     geneInfoFile.close();

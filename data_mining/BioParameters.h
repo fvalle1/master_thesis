@@ -6,35 +6,40 @@
 #define THESIS_DATA_MINING_BIOPARAMETERS_H
 
 enum species{
-    kHomoSapiens,
-    kMouse
+  kTCGA,
+  kMouse,
+  kGTEX
 };
 
 class BioParameters {
 public:
-    static constexpr int getENSLenght(){
-        switch(fSpecie){
-            case kHomoSapiens:
-                return 15; //Home sapiens
-            case kMouse:
-                return 18; //mouse
-        }
+  static constexpr int getENSLenght(){
+    switch(fSpecie){
+      case kTCGA:
+      return 15; //Home sapiens
+      case kMouse:
+      return 18; //mouse
+      case kGTEX:
+      return 15;
     }
+  }
 
-    static constexpr int getSampleIdLenght(){
-        switch(fSpecie){
-            case kHomoSapiens:
-                return 36;//TCGA
-            case kMouse:
-                return 18; //mouse
-        }
+  static constexpr int getSampleIdLenght(){
+    switch(fSpecie){
+      case kTCGA:
+      return 36;//TCGA
+      case kMouse:
+      return 18; //mouse
+      case kGTEX:
+      return 23;
     }
+  }
 
 private:
-    BioParameters() = default;
-    ~BioParameters() = default;
+  BioParameters() = default;
+  ~BioParameters() = default;
 
-    static const species fSpecie=kMouse;
+  static const species fSpecie=kMouse;
 };
 
 

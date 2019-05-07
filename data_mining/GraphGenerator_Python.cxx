@@ -11,7 +11,7 @@
 
 void makegraph(){
     boost::timer::auto_cpu_timer stopwatch;
-    auto G = new GraphGenerator(3000, 0.9 ,true, true);
+    auto G = new GraphGenerator(3000, 0.5 ,true, true);
     G->MakeGraph();
     delete G;
 }
@@ -40,8 +40,10 @@ BOOST_PYTHON_MODULE(graphgenerator_ext)
     using namespace boost::python;
 
     def("statistics", statistics, statistics_overloads(
-            boost::python::arg("saveAbundancesOccurrences")=true,
-            boost::python::arg("considerZeros")=true)
+            (
+                    boost::python::arg("saveAbundancesOccurrences")=true,
+                            boost::python::arg("considerZeros")=true)
+        )
     );
     def("sampling", sampling, sampling_overloads(
             boost::python::arg("averageOver")=1)
