@@ -61,7 +61,7 @@ def makePie(df, level, c, whatToLookFor = ['disease_type']):
         ax[i].set_title(lookFor, fontsize=44)
         patches, texts, autotexts = ax[i].pie(counts,
                                               labels=labels,
-                                              autopct=lambda(p): '#:%.0f'%(p * total / 100),
+                                              autopct=lambda p: '#:%.0f'%(p * total / 100),
                                               textprops={'fontsize':30, 'color':'white', 'wrap':True})
         for t in texts:
             t.set_fontsize(24)
@@ -83,7 +83,7 @@ def makeTopicPie(df, level, whatToLookFor = ['disease_type']):
         ax[i].set_title(lookFor, fontsize=44)
         patches, texts, autotexts = ax[i].pie(counts,
                                               labels=labels,
-                                              autopct=lambda(p): '#:%.0f'%(p * total / 100),
+                                              autopct=lambda p: '#:%.0f'%(p * total / 100),
                                               textprops={'fontsize':30, 'color':'white', 'wrap':True})
         for t in texts:
             t.set_fontsize(24)

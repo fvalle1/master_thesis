@@ -3,6 +3,7 @@ OSLOM2/
 gdc-client/
 pgc/
 midterms/
+Enrichr/
 
 */.idea
 .ipynb_checkpoints/
@@ -33,7 +34,10 @@ corpus.*
 *.dat
 *.pdf
 *.jpg
-
+*gct
+*swp
+*.xls*
+*.txt
 *.red
 
 gtex/biobank_collection_20190430_070519\.txt

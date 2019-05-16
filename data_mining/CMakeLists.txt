@@ -56,14 +56,14 @@ message(STATUS "Python_LIBRARIES: ${PYTHON__LIBRARY}")
 add_library(graphgenerator SHARED GraphGenerator.cxx)
 
 # Define the wrapper library that wraps our library
-add_library(graphgenerator_ext SHARED
+add_library(tacos SHARED
         GraphGenerator_Python.cxx
         MainTable.cxx
         SamplingModel.cxx
         RandomGen.cxx)
 # don't prepend wrapper library name with lib
-set_target_properties(graphgenerator_ext PROPERTIES PREFIX "" )
+set_target_properties(tacos PROPERTIES PREFIX "" )
 # must be .so (not .dylib)
-set_target_properties(graphgenerator_ext PROPERTIES SUFFIX ".so")
+set_target_properties(tacos PROPERTIES SUFFIX ".so")
 
-target_link_libraries(graphgenerator_ext ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} graphgenerator curl)
+target_link_libraries(tacos ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} graphgenerator curl)

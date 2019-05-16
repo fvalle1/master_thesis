@@ -31,7 +31,7 @@ public:
       case kMouse:
       return 18; //mouse
       case kGTEX:
-      return 23;
+      return 24;
     }
   }
 
@@ -39,7 +39,7 @@ private:
   BioParameters() = default;
   ~BioParameters() = default;
 
-  static const species fSpecie=kMouse;
+  static const species fSpecie=kGTEX;
 };
 
 

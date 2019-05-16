@@ -11,7 +11,7 @@
 
 void makegraph(){
     boost::timer::auto_cpu_timer stopwatch;
-    auto G = new GraphGenerator(3000, 0.5 ,true, true);
+    auto G = new GraphGenerator(5000, 1 ,false, true);
     G->MakeGraph();
     delete G;
 }
@@ -35,7 +35,7 @@ void statistics(bool saveOccurrences=true, bool considerZeros=true){
 BOOST_PYTHON_FUNCTION_OVERLOADS(statistics_overloads, statistics, 0, 2)
 
 
-BOOST_PYTHON_MODULE(graphgenerator_ext)
+BOOST_PYTHON_MODULE(tacos)
 {
     using namespace boost::python;
 

@@ -97,3 +97,27 @@ def genecoord(genedict, means, variances, metric='fpkm'):
     plt.legend()
     plt.show()
     fig.savefig("plot/genes/%s_coord.png"%(genedict['name']))
+    
+def discretize(column, nquartiles=10):
+    quantiles = np.quantile(column,np.arange(0,1,1./nquartiles)[1:])
+    c = np.digitize(column, quantiles) + 1
+    c[column==0]=0
+    return c
+
+def discretize_df_columns(df):
+    qdf = pd.DataFrame(index=df.index.values)
+    for i,sample in enumerate(df.columns.values):
+        print(sample,i)
+        column = df.loc[:,sample].values[0]
+        s = pd.Series(data = discretize(column), index=df.index.values, dtype=int)
+        s.name=sample
+        qdf.insert(0,s.name,s.values.round(0))
+    return qdf
+
+df_symbols= pd.read_csv("gene_symbol.txt", index_col=[0])
+    
+def get_symbol(ensg):
+    '''
+    convert ensg to symbol
+    '''
+    return df_symbols.at[ensg,'Description']

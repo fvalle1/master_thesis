@@ -81,7 +81,7 @@ void GraphGenerator::MakeGraph() {
                               auto currentRead = std::stoull(fpkm_string); //weight
                               //condition to work on
                               if (geneIt->second.second <= fMaxOccurrence) { //check checkable condition
-                                  if (currentRead >= 1) {
+                                  if (currentRead >= 1 & currentRead<=10000) {//avoid lenght error
                                       geneIt->second.first = -1; //add to nodes
                                       auto currentDocTitle = FullFilesList[currentDoc].substr(0, BioParameters::getSampleIdLenght());
                                       auto currentDocIterator = titles.find(currentDocTitle);
