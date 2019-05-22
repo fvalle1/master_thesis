@@ -36,7 +36,7 @@ if(Boost_FOUND)
             RandomGen.cxx
             GraphGenerator.cxx
             BioParameters.cxx
-    )
+            LabelsReshuffler.cxx)
 
     target_link_libraries(data_mining ${Boost_LIBRARIES})
     target_link_libraries(data_mining curl)
@@ -60,7 +60,8 @@ add_library(tacos SHARED
         GraphGenerator_Python.cxx
         MainTable.cxx
         SamplingModel.cxx
-        RandomGen.cxx)
+        RandomGen.cxx
+        LabelsReshuffler.cxx)
 # don't prepend wrapper library name with lib
 set_target_properties(tacos PROPERTIES PREFIX "" )
 # must be .so (not .dylib)

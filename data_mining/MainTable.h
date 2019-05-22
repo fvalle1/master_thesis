@@ -43,12 +43,12 @@ public:
         else return 0;
     };
 
+    std::vector<std::string> tokenize(const std::string &);
+
 protected:
     uint64_t fNComponents;
     uint64_t fNRealizations;
     matrix fData;
-
-    std::vector<std::string> tokenize(const std::string &);
 
     void SaveTotalArray(const char *filename, const double *X, uint64_t length);
     void SaveHeapsData(const double *VocabularySize);

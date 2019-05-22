@@ -7,6 +7,8 @@
 RandomGen* RandomGen::fgRandomGen = nullptr;
 
 RandomGen RandomGen::Instance(uint64_t seed) {
+    if(!fgRandomGen) printf("NO existing rng!!!!!!!!!!");
+    else printf("already existing rng");
     if(!fgRandomGen) fgRandomGen = new RandomGen(seed);
     return *fgRandomGen;
 }
