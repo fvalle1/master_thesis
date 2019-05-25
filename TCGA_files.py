@@ -17,7 +17,8 @@ fields = [
     "diagnoses.primary_diagnosis",
     "diagnoses.classification_of_tumor",
     "annotations.classification",
-    "samples.tumor_code"
+    "samples.tumor_code",
+    "samples.tumor_descriptor"
     ]
 
 fields = ','.join(fields)

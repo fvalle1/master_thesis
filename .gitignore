@@ -38,6 +38,13 @@ corpus.*
 *swp
 *.xls*
 *.txt
+*.shuf
+*.ok
+*.sub
 *.red
 
-gtex/biobank_collection_20190430_070519\.txt
+*.txt
+
+*hSBM\.ipynb
+
+*sbmtm\.py

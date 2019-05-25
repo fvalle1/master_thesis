@@ -417,12 +417,12 @@ class sbmtm():
             df.to_html(filename,index=False,na_rep='')
         else:
             pass
-        
-        
+
+
         ## word-distr
         list_topics = np.arange(len(self.groups[l]['p_w_tw'].T))
         list_columns = ["Topic %d"%(t+1) for t in list_topics]
-        
+
         pwtw_df = pd.DataFrame(data=self.groups[l]['p_w_tw'], index=self.words, columns=list_columns)
         pwtw_df.replace(0,np.nan)
         pwtw_df=pwtw_df.dropna(how='all',axis=0)
@@ -564,3 +564,34 @@ class sbmtm():
             return n_td_tw/np.sum(n_td_tw)
         else:
             return n_td_tw
+
+    def plot_topic_dist(l):
+        groups = self.model.groups[l]
+        p_w_tw = groups['p_w_tw']
+        fig=plt.figure(figsize=(12,10))
+        plt.imshow(p_w_tw,origin='lower',aspect='auto',interpolation='none')
+        plt.title(r'Word group membership $P(w | tw)$')
+        plt.xlabel('Topic, tw')
+        plt.ylabel('Word w (index)')
+        plt.colorbar()
+        fig.savefig("p_w_tw_%d.png"%l)
+        p_tw_d = groups['p_tw_d']
+        fig=plt.figure(figsize=(12,10))
+        plt.imshow(p_tw_d,origin='lower',aspect='auto',interpolation='none')
+        plt.title(r'Word group membership $P(tw | d)$')
+        plt.xlabel('Document (index)')
+        plt.ylabel('Topic, tw')
+        plt.colorbar()
+        fig.savefig("p_tw_d_%d.png"%l)
+
+    def savedata():
+        for i in range(len(self.state.get_levels())-2)[::-1]:
+            print("Saving level %d"%i)
+            self.model.print_topics(l=i)
+            self.model.print_topics(l=i, format='tsv')
+            self.plot_topic_dist(i)
+            plot_topic_dist(i)
+            self.state.get_levels()[i]
+            plt.matshow(e.todense())
+            plt.savefig("mat_%d.png"%i)
+        self.model.print_summary()
