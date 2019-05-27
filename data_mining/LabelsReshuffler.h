@@ -29,7 +29,7 @@ public:
     static std::vector<std::string> tokenize(const string&);
 
     static void shuffleVector(std::vector<string> &vec, RandomGen &rng,
-                              boost::random::uniform_int_distribution<uint64_t> &distr);
+                              boost::random::uniform_int_distribution<uint64_t> &distr, int nstat=50);
 };
 
 

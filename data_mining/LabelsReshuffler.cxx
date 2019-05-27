@@ -68,9 +68,10 @@ void LabelsReshuffler::Shuffle(){
 }
 
 void LabelsReshuffler::shuffleVector(std::vector<string> &vec, RandomGen &rng,
-  boost::random::uniform_int_distribution<uint64_t> &distr) {
+  boost::random::uniform_int_distribution<uint64_t> &distr, int nstat) {
+    for(int stat=0; stat<nstat;stat++)
     for(uint64_t i =0; i< vec.size();i++)
-      iter_swap(vec.begin()+i, vec.begin()+distr(rng));
+    iter_swap(vec.begin()+i, vec.begin()+distr(rng));
   }
 
   std::vector<std::string> LabelsReshuffler::tokenize(const string& line){
