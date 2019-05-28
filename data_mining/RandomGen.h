@@ -10,6 +10,7 @@
 class RandomGen : public pcg32_fast {
 public:
     static RandomGen Instance(uint64_t seed = 42);
+    static void Destroy();
 
 private:
     explicit RandomGen(uint64_t seed) : pcg32_fast(seed){ }

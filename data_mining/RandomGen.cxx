@@ -12,3 +12,7 @@ RandomGen RandomGen::Instance(uint64_t seed) {
     if(!fgRandomGen) fgRandomGen = new RandomGen(seed);
     return *fgRandomGen;
 }
+
+void RandomGen::Destroy() {
+    delete fgRandomGen;
+}

@@ -13,6 +13,8 @@
 #include "SamplingModel.h"
 #include "LabelsReshuffler.h"
 
+#include "hSBM_analyser.h"
+
 void makegraph(){
     boost::timer::auto_cpu_timer stopwatch;
     auto G = new GraphGenerator(5000, 1 ,false, true);
@@ -65,4 +67,6 @@ BOOST_PYTHON_MODULE(tacos)
     def("makegraph", makegraph);
 
     def("shuffleLabels", reshuffle);
+
+    def("hsbm_analisys", hSBM::analyse_hsbm_results);
 }
