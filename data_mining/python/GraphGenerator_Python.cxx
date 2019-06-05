@@ -17,7 +17,7 @@
 
 void makegraph(){
     boost::timer::auto_cpu_timer stopwatch;
-    auto G = new GraphGenerator(5000, 1 ,false, true);
+    auto G = new GraphGenerator(8000, 1 ,false, true);
     G->MakeGraph();
     delete G;
 }
@@ -51,6 +51,11 @@ void reshuffle(){
     LabelsReshuffler::Shuffle();
 }
 
+void sample_kullback_liebler(){
+    hSBM::hsbm::sample_kullback_liebler();
+}
+
+
 BOOST_PYTHON_MODULE(tacos)
 {
     using namespace boost::python;
@@ -68,5 +73,5 @@ BOOST_PYTHON_MODULE(tacos)
 
     def("shuffleLabels", reshuffle);
 
-    def("hsbm_analisys", hSBM::analyse_hsbm_results);
+    def("topickl", sample_kullback_liebler);
 }

@@ -16,7 +16,6 @@ add_library(graphgenerator SHARED ${CMAKE_SOURCE_DIR}/GraphGenerator.cxx)
 # Define the wrapper library that wraps our library
 add_library(tacos SHARED
         GraphGenerator_Python.cxx
-        hSBM_analyser.h
         ${CMAKE_SOURCE_DIR}/MainTable.cxx
         ${CMAKE_SOURCE_DIR}/SamplingModel.cxx
         ${CMAKE_SOURCE_DIR}/RandomGen.cxx
