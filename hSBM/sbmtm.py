@@ -6,6 +6,7 @@ from collections import Counter,defaultdict
 import pickle
 import graph_tool.all as gt
 import sys
+from matplotlib import pyplot as plt
 
 
 class sbmtm():
@@ -566,7 +567,7 @@ class sbmtm():
             return n_td_tw
 
     def plot_topic_dist(self, l):
-        groups = self.model.groups[l]
+        groups = self.groups[l]
         p_w_tw = groups['p_w_tw']
         fig=plt.figure(figsize=(12,10))
         plt.imshow(p_w_tw,origin='lower',aspect='auto',interpolation='none')
@@ -587,11 +588,10 @@ class sbmtm():
     def savedata(self):
         for i in range(len(self.state.get_levels())-2)[::-1]:
             print("Saving level %d"%i)
-            self.model.print_topics(l=i)
-            self.model.print_topics(l=i, format='tsv')
+            self.print_topics(l=i)
+            self.print_topics(l=i, format='tsv')
             self.plot_topic_dist(i)
-            plot_topic_dist(i)
             e = self.state.get_levels()[i].get_matrix()
             plt.matshow(e.todense())
             plt.savefig("mat_%d.png"%i)
-        self.model.print_summary()
+        self.print_summary()

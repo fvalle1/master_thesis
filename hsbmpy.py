@@ -56,16 +56,25 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                 norm = 1
             fraction_sites[site].append(c_fraction_site[site]/norm)
             c_fraction_site[site]=0
-    return fraction_sites
+    df = pd.DataFrame(data=fraction_sites)
+    ##put first columns that have high values in average
+    avgs=df.apply(lambda x: np.average(x.to_numpy()[x.to_numpy().nonzero()[0]]),axis=0)
+    df=df.transpose()
+    df.insert(0,'avg',avgs)
+    df = df.sort_values(by=['avg'], axis=0, ascending=False).drop('avg',axis=1).transpose()
+    df = df.sort_values(by=[tissue for tissue in df.columns], axis=0, ascending=False)
+    return df.to_dict(orient='list')
 
 def get_clustersinfo(cluster, fraction_sites):
     clustersinfo = {
     "maximum": [],
+    "homogeneity":[],
     "sizes": [],
     "nclasses":[]
     }
     for icluster in cluster:
         maximum = 0
+        homo = 0
         size = 0
         nclass = 0
         site_maximum = ''
@@ -78,10 +87,18 @@ def get_clustersinfo(cluster, fraction_sites):
                 site_maximum = site
             if cdata > 0:
                 nclass+=1
+                #using fraction_items normalised
+                if cdata<=1:
+                    homo-=cdata*np.log(cdata)
             size+=cdata
-        clustersinfo['maximum'].append([float(maximum)/cumulative,site_maximum])
+        if cumulative > 0:
+            clustersinfo['maximum'].append([float(maximum)/cumulative,site_maximum])
+        else:
+            clustersinfo['maximum'].append([0,site_maximum])
         clustersinfo['sizes'].append(size)
         clustersinfo['nclasses'].append(nclass)
+        clustersinfo['homogeneity'].append(1-homo)
+        homo=0
         maximum=0
         cumulative=0
         size=0
@@ -91,18 +108,23 @@ def get_clustersinfo(cluster, fraction_sites):
 
 def plot_maximum(clustersinfo, cluster, label, level, directory,clustersinfo_shuffle=None):
     fig=plt.figure(figsize=(15,6))
+    ax = fig.subplots(1,2)
+    bins = 10 
     real = np.array(clustersinfo['maximum'])[:,0].astype(float)
-    plt.plot(np.sort(real), marker='x')
+    ax[0].plot(np.sort(real), marker='o', ms=25, ls='')
+    ax[1].hist(np.sort(real), histtype='step', bins=bins, lw=4, density=True, range=(0.05,1.05))
     shuffled=False
     if clustersinfo_shuffle is not None:
         shuffled = np.array(clustersinfo_shuffle['maximum'])[:,0].astype(float)
-        plt.plot(np.sort(shuffled), marker='x')
-        plt.plot(np.sort(real-shuffled), marker='x')
+        ax[0].plot(np.sort(shuffled), marker='o', ls='', ms=25)
+        ax[1].hist(np.sort(shuffled), histtype='step', bins=bins, lw=4, density=True, range=(0.05,1.05))
         shuffled=True
-    plt.plot(np.arange(len(cluster)),[0.8 for i in range(len(cluster))], visible=True)
-    plt.xlabel("cluster", fontsize=16)
-    plt.ylabel("maximum fraction\nwith same %s"%label, fontsize=16)
-    plt.ylim((0,1.1))
+    ax[0].plot(np.arange(len(cluster)),[0.8 for i in range(len(cluster))], visible=True, ls='--')
+    ax[0].set_xlabel("cluster", fontsize=16)
+    ax[0].set_ylabel("maximum fraction\nwith same %s"%label, fontsize=16)
+    ax[0].set_ylim((0,1.1))
+    ax[1].set_xlabel("maximum fraction\nwith same %s"%label, fontsize=16)
+    ax[1].set_ylabel("pdf", fontsize=16)
     plt.show()
     fig.savefig("%s/%scluster_maximum_l%d_%s.png"%(directory,"shuffled" if shuffled else '',level,label))
 
@@ -114,19 +136,18 @@ def plot_maximum_size(clustersinfo, label, level, directory,clustersinfo_shuffle
     y = np.array(clustersinfo['maximum'])[:,0].astype(float)
     plt.scatter(x,y, lw=10, label='clusters')
     plt.xlim(0,np.max(x)+np.max(x)/10)
-    plt.plot([10 for _ in range(10)],np.linspace(0,1,10), ls='--', label=10)
     plt.plot(np.linspace(0.5,x.max()),1./np.linspace(0.5,x.max()), label='uniform')
     shuffled=False
     if clustersinfo_shuffle is not None:
         shuffled=True
         x_shuffle = np.array(clustersinfo_shuffle['sizes']).astype(int)
         y_shuffle = np.array(clustersinfo_shuffle['maximum'])[:,0].astype(float)
-        plt.scatter(x_shuffle,y_shuffle, lw=10, label='clusters')
+        plt.scatter(x_shuffle,y_shuffle, lw=10, label='clusters shuffled')
         plt.xlim(0,np.max(x_shuffle)+np.max(x_shuffle)/10)
     plt.xlabel("cluster size", fontsize=16)
     plt.ylabel("maximum fraction\nwith same %s"%label, fontsize=16)
     plt.ylim((0,1.1))
-    plt.legend(loc='lower right', fontsize=18)
+    plt.legend(loc='best', fontsize=18)
     plt.show()
     fig.savefig("%s/%sclusterhomosize_l%d_%s.png"%(directory, "shuffled" if shuffled else '', level,label))
 
@@ -135,13 +156,13 @@ def plot_maximum_label(clustersinfo,label,level, directory,clustersinfo_shuffle=
     x = np.array(clustersinfo['nclasses']).astype(int)
     y = np.array(clustersinfo['maximum'])[:,0].astype(float)
     shuffled=False
-    plt.scatter(x,y, lw=10, alpha=0.5, label='clusters')
+    plt.scatter(x,y, lw=10, alpha=0.9, label='clusters')
     plt.plot(np.arange(1,np.max(x)+2),1./np.arange(1,np.max(x)+2),ls='--',c='cyan', label='uniform')
     plt.xlim(0.95,np.max(x)+0.5)
     if clustersinfo_shuffle is not None:
         x_shuffle = np.array(clustersinfo_shuffle['nclasses']).astype(int)
         y_shuffle = np.array(clustersinfo_shuffle['maximum'])[:,0].astype(float)
-        plt.scatter(x_shuffle,y_shuffle, lw=10, alpha=0.5, label='clusters shuffled')
+        plt.scatter(x_shuffle,y_shuffle, lw=10, alpha=0.9, label='clusters shuffled')
         plt.plot(np.arange(1,np.max(x_shuffle)+2),1./np.arange(1,np.max(x_shuffle)+2),ls='--',c='cyan', label='')
         shuffled=True
         plt.xlim(0.95,np.max(x_shuffle)+0.5)
@@ -159,11 +180,11 @@ def plot_labels_size(clustersinfo, label, level,directory, clustersinfo_shuffle=
     plt.xlim(x.min()-10,x.max()+5)
     plt.ylim(y.min()-2,y.max()+5)
     shuffled=False
-    plt.scatter(x,y, lw=10, alpha=0.5, label='clusters')
+    plt.scatter(x,y, lw=10, alpha=0.9, label='clusters')
     if clustersinfo_shuffle is not None:
         x_shuffle = np.array(clustersinfo_shuffle['sizes']).astype(float)
         y_shuffle = np.array(clustersinfo_shuffle['nclasses']).astype(int)
-        plt.scatter(x_shuffle,y_shuffle, lw=10, alpha=0.5, label='clusters shuffled')
+        plt.scatter(x_shuffle,y_shuffle, lw=10, alpha=0.9, label='clusters shuffled')
         plt.xlim(x.min()-10,x_shuffle.max()+5)
         plt.ylim(y.min()-2,y_shuffle.max()+8)
         shuffled=True

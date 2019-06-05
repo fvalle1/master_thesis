@@ -1,5 +1,27 @@
 # Network analysis on TCGA data
 
+## Pipeline
+## Run statistics
+```python
+import tacos
+tacos.statistics()
+tacos.tacos.shuffleLabels()
+```
+
+### make bipartite network
+```bash
+python addo.py
+```
+```python
+import tacos
+tacos.makegraph()
+```
+
+## Run stochastic block model
+```
+docker run -it -p8888:8888 -v ~/home/cloudadm/drive/:/home/user/ fvalle01/hsbm bash
+jupyter notebook --ip0.0.0.0 --allow-root
+```
 
 # Files
 ## TCGA
@@ -54,6 +76,7 @@ In data_mining folder run:
 mkdir master && cd master
 cmake ..
 make data_mining
+make tacos
 ```
 
 When run `./data_ming` an *help* is printed about

@@ -18,7 +18,8 @@ fields = [
     "diagnoses.classification_of_tumor",
     "annotations.classification",
     "samples.tumor_code",
-    "samples.tumor_descriptor"
+    "samples.tumor_descriptor",
+    "annotations.case_id",
     ]
 
 fields = ','.join(fields)
@@ -98,3 +99,10 @@ def queryFiles(files):
         df = df.append(queryFile(f), ignore_index=True, sort=True)
     #print(df.head())
     return df
+
+
+def get_tcga_tissue(sample):
+    samples = pd.read_csv("/Users/filippo/Developer/tesi/results/fpkm_all/files.dat", index_col=[0], header=0)
+    for fullsample in samples.index.values:
+        if sample in fullsample:
+            return samples.loc[fullsample,:]

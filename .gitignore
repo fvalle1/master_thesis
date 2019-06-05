@@ -10,6 +10,7 @@ Enrichr/
 */cmake-build-debug/
 */CMakeFiles/
 */build
+*.so
 
 data/
 data_counts/
