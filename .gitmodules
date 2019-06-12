@@ -4,3 +4,6 @@
 [submodule "hSBM_Topicmodel"]
 	path = hSBM_Topicmodel
 	url = git@github.com:fvalle1/hSBM_Topicmodel.git
+[submodule "tacos"]
+	path = tacos
+	url = git@github.com:fvalle1/tacos.git

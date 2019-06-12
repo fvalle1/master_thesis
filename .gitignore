@@ -49,3 +49,7 @@ corpus.*
 *hSBM\.ipynb
 
 *sbmtm\.py
+
+\.RData
+
+\.Rhistory
