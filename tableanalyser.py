@@ -120,4 +120,7 @@ def get_symbol(ensg):
     '''
     convert ensg to symbol
     '''
-    return df_symbols.at[ensg,'Description']
+    if ensg in df_symbols.index.values:
+        return df_symbols.at[ensg,'Description']
+    else:
+        return ''

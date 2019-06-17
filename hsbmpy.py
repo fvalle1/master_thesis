@@ -36,7 +36,7 @@ def get_cluster_given_l(l, directory):
 def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False):
     fraction_sites = {}
     c_fraction_site = {}
-    for site in np.unique(df_files[label].values):
+    for site in df_files[label].dropna().unique():
         fraction_sites[site] = []
         c_fraction_site[site] = 0
 

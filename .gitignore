@@ -53,3 +53,7 @@ corpus.*
 \.RData
 
 \.Rhistory
+
+output/
+
+thesis/
