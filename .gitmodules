@@ -7,3 +7,6 @@
 [submodule "tacos"]
 	path = tacos
 	url = git@github.com:fvalle1/tacos.git
+[submodule "MSc_doc"]
+	path = MSc_doc
+	url = git@github.com:fvalle1/MSc_doc.git

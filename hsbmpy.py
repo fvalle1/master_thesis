@@ -24,7 +24,7 @@ def plot_cluster_composition(fraction_sites, directory, level, normalise=False, 
     plt.legend(ncol=3)
     plt.xticks(x)
     plt.show()
-    fig.savefig("%s/%s%sclustercomposition_l%d_%s.png"%(directory, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level),label))
+    fig.savefig("%s/%s%sclustercomposition_l%d_%s.pdf"%(directory, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level),label))
 
 def get_cluster_given_l(l, directory):
     df_clusters = pd.read_csv("%s/topsbm/topsbm_level_%d_clusters.csv"%(directory, l), header=[0])
@@ -126,7 +126,7 @@ def plot_maximum(clustersinfo, cluster, label, level, directory,clustersinfo_shu
     ax[1].set_xlabel("maximum fraction\nwith same %s"%label, fontsize=16)
     ax[1].set_ylabel("pdf", fontsize=16)
     plt.show()
-    fig.savefig("%s/%scluster_maximum_l%d_%s.png"%(directory,"shuffled" if shuffled else '',level,label))
+    fig.savefig("%s/%scluster_maximum_l%d_%s.pdf"%(directory,"shuffled" if shuffled else '',level,label))
 
 
 
@@ -149,7 +149,7 @@ def plot_maximum_size(clustersinfo, label, level, directory,clustersinfo_shuffle
     plt.ylim((0,1.1))
     plt.legend(loc='best', fontsize=18)
     plt.show()
-    fig.savefig("%s/%sclusterhomosize_l%d_%s.png"%(directory, "shuffled" if shuffled else '', level,label))
+    fig.savefig("%s/%sclusterhomosize_l%d_%s.pdf"%(directory, "shuffled" if shuffled else '', level,label))
 
 def plot_maximum_label(clustersinfo,label,level, directory,clustersinfo_shuffle=None):
     fig=plt.figure(figsize=(10,6))
@@ -171,7 +171,7 @@ def plot_maximum_label(clustersinfo,label,level, directory,clustersinfo_shuffle=
     plt.ylim((0,1.1))
     plt.legend(loc='lower right', fontsize=18)
     plt.show()
-    fig.savefig("%s/%scluster_homon_l%d_%s.png"%(directory, "shuffled" if shuffled else '', level,label))
+    fig.savefig("%s/%scluster_homon_l%d_%s.pdf"%(directory, "shuffled" if shuffled else '', level,label))
 
 def plot_labels_size(clustersinfo, label, level,directory, clustersinfo_shuffle=None):
     fig=plt.figure(figsize=(10,6))
@@ -192,7 +192,7 @@ def plot_labels_size(clustersinfo, label, level,directory, clustersinfo_shuffle=
     plt.ylabel("# labels in cluster", fontsize=16)
     plt.legend(loc='upper right', fontsize=18)
     plt.show()
-    fig.savefig("%s/%scluster_shuffle_label_size_l%d_%s.png"%(directory, "shuffled" if shuffled else '', level,label))
+    fig.savefig("%s/%scluster_shuffle_label_size_l%d_%s.pdf"%(directory, "shuffled" if shuffled else '', level,label))
 
 def make_heatmap(fraction_sites, directory, label, level, shuffled=False, normalise=False):
     sns.set(font_scale=2)
@@ -208,7 +208,7 @@ def make_heatmap(fraction_sites, directory, label, level, shuffled=False, normal
     fig = plt.figure(figsize=(30,10))
     heatmap = fig.subplots(1)
     heatmap = sns.heatmap(pd.DataFrame(data=fraction_sites).loc[:,found_classes].transpose(), vmin=0, cmap= "RdYlBu_r", xticklabels=x)
-    fig.savefig("%s/%sheatmap_cluster%s_l%d_%s.png"%(directory,"shuffled" if shuffled else '',"fraction_" if normalise else '', int(level),label))
+    fig.savefig("%s/%sheatmap_cluster%s_l%d_%s.pdf"%(directory,"shuffled" if shuffled else '',"fraction_" if normalise else '', int(level),label))
 
 def get_file(sample, df_file):
     for fullsample in df_file.index.values:
@@ -229,3 +229,89 @@ def define_labels(cluster, df_files, label='primary_site', verbose=False):
                 print("error in %s"%sample)
     _, true_labels = np.unique(true_labels,return_inverse=True)
     return true_labels, predicted_labels
+
+def add_score_lines(ax, scores, labels, xl, h=False, c=False, alpha=0.2, **kwargs):
+    '''
+    add to ax lines in scores
+    add homogeneity and completness if required by h and c
+    '''
+    colors = {
+        'primary_site':'blue',
+        'secondary_site':'red',
+        'status':'red',
+        'mixed':'green',
+        'disease_type':'red',
+        'shuffle': 'orange',
+        'uniq':'purple',
+        'hierarchical':'darkcyan',
+        'lda':'violet',
+        'RPPA Clusters':'red'
+    }
+    for label in labels:
+        if h:
+            ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], alpha=alpha, label='homogeneity - %s'%label)
+        if c:
+            ax.plot(xl, scores[label]['c'], ls=':', c=colors[label], alpha=alpha, label='completness - %s'%label)
+        ax.plot(xl, scores[label]['V'], label='MI - %s'%label, ls='-', c=colors[label], **kwargs)
+    customize_metric_plot(ax,xl)
+        
+def customize_metric_plot(ax, xl):
+    ax.set_xlabel("number of clusters", fontsize=16)
+    ax.set_ylabel("score", fontsize=16)
+    ax.set_ylim((0,1.1))
+    ax.set_xlim(np.min(xl),np.max(xl))
+    ax.set_xscale('log')
+    ax.legend(loc='best', fontsize=14)
+
+def get_tissue_style(tissue):
+    marker = 'o'
+    c='k'
+    ls='--'
+    if 'gtex' in tissue:
+        marker='o'
+        ls='-'
+    elif 'tcga' in tissue:
+        marker='x'
+        ls='--'
+    else:
+        marker='.'
+        ls='-.'
+    if 'reast' in tissue:
+        c='darkcyan'
+    elif 'olon' in tissue:
+        c='b'
+    elif 'hyroid' in tissue:
+        c='y'
+    elif 'terus' in tissue:
+        c='pink'
+    elif 'ladder' in tissue:
+        c='gray'
+    elif 'sophagus' in tissue:
+        c='brown'
+    elif 'ung' in tissue:
+        c='magenta'
+    elif 'tomach' in tissue:
+        c='lime'
+    elif 'kin' in tissue:
+        c='wheat'
+    elif 'ancreas' in tissue:
+        c='forestgreen'
+    elif 'Adrenal Gland' in tissue:
+        c='aqua'
+    elif 'Adipose Tissue' in tissue:
+        c='brown'
+    elif 'erve' in tissue:
+        c='royalblue'
+    elif 'lood' in tissue:
+        c='red'
+    elif 'idney' in tissue:
+        c='mediumslateblue'
+    elif 'eart' in tissue:
+        c='darkred'
+    elif 'rain' in tissue:
+        c='darkgray'
+    elif 'estis' in tissue:
+        c='darkkhaki'
+    else:
+        c='k'
+    return (marker,c,ls)
