@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from tacos_plot import scatterdense
+from scipy import stats as st
+from scipy import stats
+import os
+
 
 def geneinfo(genename, df, nfiles,metric='fpkm'):
     """Extimate mean and var for a ENSG gene
@@ -124,3 +129,190 @@ def get_symbol(ensg):
         return df_symbols.at[ensg,'Description']
     else:
         return ''
+    
+def plotvarmen(means, variances, ax = None, normalisation_str = "counts"):
+    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+    if ax is None:
+        fig=plt.figure(figsize=(15,8))
+        ax=fig.subplots()
+    ax.plot(x_lin[:20],x_lin[:20], 'r-', lw=3.5, label='$<%s>$ (Poisson)'%normalisation_str)
+    ax.plot(x_lin[-40:],np.power(x_lin[-40:],2), 'g-', lw=3.5, label='$<%s>^2$ (Taylor)'%normalisation_str)
+
+    scatterdense(means, variances, ax=ax, label='genes')
+
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
+    ax.set_ylabel("$\sigma^2_{%s}$"%normalisation_str, fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(np.nanmin(means[means.nonzero()])/5,np.power(10,np.log10(np.nanmax(means))+1))
+    ax.set_ylim((np.nanmin(variances[variances.nonzero()])/10,np.power(10,np.log10(np.nanmax(variances))+1)))
+    ax.legend(fontsize=18)
+    plt.show()
+
+def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
+    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+    cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
+    scatterdense(means[means.nonzero()], cv2,ax=ax)
+    if ax is None:
+        fig=plt.figure(figsize=(15,8))
+        ax=fig.subplots()
+    ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='Taylor')
+    ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='Poisson')
+
+    #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
+
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
+    ax.set_ylabel("$cv^2$", fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
+    ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
+    ax.legend(fontsize=18)
+    plt.show()
+    
+    
+def plotoversigmacv2(means,variances, ax=None, normalisation_str = "counts", how_many_sigmas=3):
+    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+    cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
+    if ax is None:
+        fig=plt.figure()
+        ax=fig.subplots()
+    ax.scatter(means[means.nonzero()], cv2, c='b')
+
+    ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='$1$ (Taylor)')
+    ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='$<%s>^{-1}$ (Poisson)'%normalisation_str)
+
+    #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
+
+    log_bins_for_x = np.logspace(np.log10(means[means.nonzero()].min()),6,25)
+
+    bin_means, bin_edges, _ = st.binned_statistic(means[means.nonzero()], cv2, statistic='median', bins=log_bins_for_x)
+    ax.scatter((bin_edges[:-1]+bin_edges[1:])/2.,bin_means, marker='x', color='orange', label='binned median')
+
+    bin_sigmas,  _, _ = stats.binned_statistic(means[means.nonzero()], cv2, statistic=np.std, bins=log_bins_for_x)
+    ax.plot((bin_edges[:-1] + bin_edges[1:])/2, bin_means+bin_sigmas*how_many_sigmas, lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
+
+
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=18)
+    ax.set_ylabel("$cv^2$", fontsize=18)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
+    ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
+    ax.legend(fontsize=18)
+    plt.show()
+
+def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "counts", how_many_sigmas=3):
+    if ax is None:
+        fig=plt.figure()
+        ax=fig.subplots()
+    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+    cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
+    ax.scatter(means[means.nonzero()], cv2, c='b')
+    ax.scatter(over_plot.T[0],over_plot.T[1], color='cyan')
+
+    ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='(Taylor)')
+    ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='$<%s>^{-1}$ (Poisson)'%normalisation_str)
+    #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
+
+    log_bins_for_x = np.logspace(np.log10(means[means.nonzero()].min()),5,25)
+
+    #bin_means, bin_edges, _ = st.binned_statistic(means[means.nonzero()], cv2, statistic='median', bins=log_bins_for_x)
+    #plt.scatter((bin_edges[:-1]+bin_edges[1:])/2.,bin_means, marker='x', color='orange', label='binned median')
+    bin_means, bin_edges, _ = st.binned_statistic(means[means.nonzero()], cv2, statistic='median', bins=log_bins_for_x)
+    bin_sigmas,  _, _ = stats.binned_statistic(means[means.nonzero()], cv2, statistic=np.std, bins=log_bins_for_x)
+    ax.hlines(bin_means+bin_sigmas*how_many_sigmas,bin_edges[1:], bin_edges[:-1], lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
+
+
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
+    ax.set_ylabel("$cv^2$", fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
+    ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
+    ax.legend(fontsize=18)
+    plt.show()
+    
+def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3, knee=100):
+    '''
+    \param method can be 'sampling', 'sigma'
+    '''
+    over = []
+    for g in df_mv.index:
+        subdf = df_mv.loc[g,:]
+        mean = float(subdf['mean'])
+        var = subdf['variance']
+        if mean> 1e5 or mean< 1e-3:
+            continue
+        if 'sampling' in method:
+            r = func(mean,float(var)/mean/mean, knee=knee, distance=distance)
+        elif 'sigma' in method:
+            r = func(mean,float(var)/mean/mean, how_many_sigmas=how_many_sigmas)
+        if r[4]:
+            over.append(g)
+    print("found %d highly variable genes"%len(over))
+    over_plot = []
+    for g in over:
+        subdf = df_mv.loc[g,]
+        mean = subdf['mean']
+        var = subdf['variance']
+        occ = subdf['occurrence']
+        cv2 = float(var)/mean/mean
+        over_plot.append([mean,cv2,occ])
+    over_plot=np.array(over_plot)
+    return (over,over_plot)
+    
+def get_mean_cv2_sampling(mean, cv2, knee=1., distance=10):
+    if mean < knee:
+        return(mean, cv2, -1, -1, cv2 > distance+1./mean)
+    else:
+        return(mean, cv2, -1, -1, cv2 > 1e-1+distance)
+    
+    
+def get_mean_cv2_sigma(mean, cv2, how_many_sigmas=3):
+    bin_i = 0
+    for i in range(len(bin_edges[:-1])):
+        if mean<=bin_edges[i+1] and mean > bin_edges[i]:
+            bin_i = i
+            break
+    return(mean, cv2, bin_means[bin_i], bin_sigmas[bin_i], cv2>(bin_means[bin_i]+how_many_sigmas*bin_sigmas[bin_i]))
+    
+def scalinglawsandoverexpressed(working_dir, normalisation_str = "counts", method='sampling', how_many_sigmas=3, distance=10):
+    os.chdir(working_dir)
+    df = pd.read_csv(("mainTable.csv"), index_col=[0])
+    print(df.info())
+    ngenes = len(df.index)
+    nfiles = len(df.columns)
+    print("genes:%d\trealizations:%d"%(ngenes,nfiles))
+    df_mv = pd.read_csv("meanVariances.csv", index_col = [0])
+    df_mv.dropna(axis=0,how='any',inplace=True)
+    print(df_mv.info())
+    means = df_mv['mean'].values
+    variances = df_mv['variance'].values
+    occurrences = np.array(df_mv['occurrence'].values, dtype=float)
+    abundances = pd.read_csv("A.dat", header=None).values
+    #vm
+    fig=plt.figure(figsize=(15,8))
+    ax=fig.subplots()
+    plotvarmen(means, variances, ax=ax, normalisation_str=normalisation_str)
+    fig.savefig("varmean_loglog.png")
+    #cvm
+    fig=plt.figure(figsize=(15,8))
+    ax=fig.subplots()
+    plotcv2mean(means, variances, ax=ax, normalisation_str=normalisation_str)
+    fig.savefig("cvmean_loglog.png")
+    #cvover
+    fig=plt.figure(figsize=(15,8))
+    ax=fig.subplots()
+    plotoversigmacv2(means, variances, ax=ax, normalisation_str=normalisation_str, how_many_sigmas=how_many_sigmas)
+    fig.savefig("cvmean_loglog_%dsigma.png"%how_many_sigmas)
+    if 'sampling' in method:
+        over, over_plot = getovergenes(df_mv,get_mean_cv2_sampling, method='sampling', distance=distance)
+    elif 'sigma' in method:
+        over, over_plot = getovergenes(df_mv,get_mean_cv2_sigma, method='sigma')
+    #cvoverpoints
+    fig=plt.figure(figsize=(15,8))
+    ax = fig.subplots()
+    plotoverpoints(means, variances, over_plot, ax=ax, how_many_sigmas=how_many_sigmas)
+    fig.savefig("cvmean_loglog_oversigma.png")
+    df[df.index.isin(over)].dropna().to_csv("mainTable_over.csv",index=True, header=True)

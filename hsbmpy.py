@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+from mpl_finance import candlestick2_ohlc
 import seaborn as sns
 
 def plot_cluster_composition(fraction_sites, directory, level, normalise=False, label='primary_site', shuffled=False):
@@ -263,6 +264,54 @@ def customize_metric_plot(ax, xl):
     ax.set_xscale('log')
     ax.legend(loc='best', fontsize=14)
 
+def plot_topic_size(directory,l):
+    df_topics = pd.read_csv("%s/topsbm/topsbm_level_%d_topics.csv"%(directory,l))
+    sizes = []
+    for t in df_topics.columns:
+        sizes.append(len(df_topics.loc[:,t].dropna()))
+    bins = np.linspace(0.5, np.max(sizes)+0.5, int((np.max(sizes)+1)/(np.max(sizes)/5)))
+    bin_counts, bin_edges, _ = plt.hist(sizes, histtype='step', lw=2, bins=bins)
+    fig=plt.figure()
+    ax=fig.subplots()
+    ax.set_title("[%d topics, level: %d]"%(len(df_topics.columns),l))
+    x=(bin_edges[:-1]+bin_edges[1:])/2
+    ax.plot(x[np.nonzero(bin_counts)], bin_counts[np.nonzero(bin_counts)])
+    ax.plot(x,1e4/np.power(x,5))
+    ax.set_xlabel("topic size (# genes)", fontsize=16)
+    ax.set_ylabel("# topic of that size", fontsize=16)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    plt.show()
+    fig.savefig("%s/topic_size_level%d.png"%(directory,l))
+    
+    
+def get_candles(directory, level, ax):
+    df_topics = pd.read_csv("%s/topsbm/topsbm_level_%d_topics.csv"%(directory,level))
+    candles = {
+        'open': [],
+        'high': [],
+        'low': [],
+        'close':[],
+        'size':[]
+    }
+    for topic in df_topics.columns:
+        subarr = df_mv.loc[df_topics[topic].dropna(),:]['occurrence'].values
+        avg = np.average(subarr)
+        std = np.std(subarr)
+        q=np.quantile(subarr,[0.25,0.75])
+        candles['high'].append(np.min([1,avg+std]))
+        candles['open'].append(np.min([q[1],1]))
+        candles['close'].append(np.max([q[0],0]))
+        candles['low'].append(np.max([0,avg-std]))
+        candles['size'].append(len(subarr))
+    ax.set_title("[level: %d]"%(l))
+    ax.set_ylabel('$O_i$', fontsize=18)
+    ax.set_xlim(-1,len(df_topics.columns))
+    ax.set_xticks([i+1 for i in range(-1,len(df_topics.columns))])
+    ax.set_xticklabels(["Topic %d"%(i+2) if ((i+2)%5==0 or i==-1) else '' for i in range(-1,len(df_topics.columns))],  rotation=60)
+    return candles
+
+
 def get_tissue_style(tissue):
     marker = 'o'
     c='k'
@@ -315,3 +364,22 @@ def get_tissue_style(tissue):
     else:
         c='k'
     return (marker,c,ls)
+
+
+
+
+def topic_distr_sample(doc, ax=None):
+    if ax == None:
+        fig = plt.figure()
+        ax = fig.subplots()
+    ax.set_title("Topic distribution: %s"%doc)
+    labels=[l if df[df['doc']==doc].loc[:,l].values[0]>=0.05 else '' for l in df.columns[2:]]
+    patches, texts, autotexts = ax.pie(df[df['doc']==doc].values[0][2:], labels=labels, autopct=lambda p: '%.1f%s'%(p,'%') if p >= 5 else '', textprops={'fontsize':20, 'color':'white', 'wrap':True})
+    for t in texts:
+                t.set_fontsize(18)
+                t.set_wrap(True)
+                t.set_color('black')
+    plt.show()
+    
+def topic_distr_isample(idoc, ax=None):
+    topic_distr_sample(df[df['i_doc']==idoc]['doc'].values[0],ax)
