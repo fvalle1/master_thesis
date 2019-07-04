@@ -5,6 +5,7 @@ pgc/
 midterms/
 Enrichr/
 
+.idea/
 */.idea
 .ipynb_checkpoints/
 */cmake-build-debug/
