@@ -6,9 +6,9 @@ import seaborn as sns
 from sklearn import metrics
 
 
-def plot_cluster_composition(fraction_sites, directory, level, normalise=False, label='primary_site', shuffled=False):
+def plot_cluster_composition(fraction_sites, directory, level, normalise=False, label='primary_site', shuffled=False, algorithm='topsbm'):
     sns.set(font_scale=0.8)
-    df_clusters = pd.read_csv("%s/topsbm/topsbm_level_%d_clusters.csv" % (directory, level), header=[0])
+    df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory,algorithm, algorithm, level), header=[0])
     x = np.arange(1, 1 + len(df_clusters.columns))
     bottom = np.zeros(len(x))
     ymax = 0
@@ -27,20 +27,20 @@ def plot_cluster_composition(fraction_sites, directory, level, normalise=False, 
     plt.legend(ncol=3)
     plt.xticks(x)
     plt.show()
-    fig.savefig("%s/%s%sclustercomposition_l%d_%s.pdf" % (
-    directory, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level), label))
+    fig.savefig("%s/%s/%s%sclustercomposition_l%d_%s.pdf" % (
+    directory,algorithm, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level), label))
 
 
-def get_cluster_given_l(l, directory):
-    df_clusters = pd.read_csv("%s/topsbm/topsbm_level_%d_clusters.csv" % (directory, l), header=[0])
+def get_cluster_given_l(l, directory, algorithm='topsbm'):
+    df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory,algorithm,algorithm, l), header=[0], index_col=None)
     cluster = {}
     for i, c in enumerate(df_clusters.columns):
         cluster[i] = df_clusters[c].dropna().values
     return cluster
 
 
-def get_topic_given_l(l, directory):
-    df_topics = pd.read_csv("%s/topsbm/topsbm_level_%d_topics.csv" % (directory, l), header=[0])
+def get_topic_given_l(l, directory, algorithm='topsbm'):
+    df_topics = pd.read_csv("%s/%s/%s_level_%d_topics.csv" % (directory,algorithm,algorithm, l), header=[0])
     topic = {}
     for i, c in enumerate(df_topics.columns):
         topic[i] = df_topics[c].dropna().values
@@ -122,7 +122,7 @@ def get_clustersinfo(cluster, fraction_sites):
     return clustersinfo
 
 
-def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_shuffle=None):
+def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_shuffle=None, algorithm='topsbm'):
     fig = plt.figure(figsize=(15, 6))
     ax = fig.subplots(1, 2)
     bins = 10
@@ -142,10 +142,10 @@ def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_sh
     ax[1].set_xlabel("maximum fraction\nwith same %s" % label, fontsize=16)
     ax[1].set_ylabel("pdf", fontsize=16)
     plt.show()
-    fig.savefig("%s/%scluster_maximum_l%d_%s.pdf" % (directory, "shuffled" if shuffled else '', level, label))
+    fig.savefig("%s/%s/%scluster_maximum_l%d_%s.pdf" % (directory,algorithm, "shuffled" if shuffled else '', level, label))
 
 
-def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffle=None):
+def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffle=None,algorithm='topsbm'):
     fig = plt.figure(figsize=(15, 6))
     x = np.array(clustersinfo['sizes']).astype(int)
     y = np.array(clustersinfo['maximum'])[:, 0].astype(float)
@@ -164,10 +164,10 @@ def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffl
     plt.ylim((0, 1.1))
     plt.legend(loc='best', fontsize=18)
     plt.show()
-    fig.savefig("%s/%sclusterhomosize_l%d_%s.pdf" % (directory, "shuffled" if shuffled else '', level, label))
+    fig.savefig("%s/%s/%sclusterhomosize_l%d_%s.pdf" % (directory,algorithm, "shuffled" if shuffled else '', level, label))
 
 
-def plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuffle=None):
+def plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuffle=None,algorithm='topsbm'):
     fig = plt.figure(figsize=(10, 6))
     x = np.array(clustersinfo['nclasses']).astype(int)
     y = np.array(clustersinfo['maximum'])[:, 0].astype(float)
@@ -188,10 +188,10 @@ def plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuff
     plt.ylim((0, 1.1))
     plt.legend(loc='lower right', fontsize=18)
     plt.show()
-    fig.savefig("%s/%scluster_homon_l%d_%s.pdf" % (directory, "shuffled" if shuffled else '', level, label))
+    fig.savefig("%s/%s/%scluster_homon_l%d_%s.pdf" % (directory,algorithm, "shuffled" if shuffled else '', level, label))
 
 
-def plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle=None):
+def plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle=None, algorithm='topsbm'):
     fig = plt.figure(figsize=(10, 6))
     x = np.array(clustersinfo['sizes']).astype(float)
     y = np.array(clustersinfo['nclasses']).astype(int)
@@ -211,10 +211,10 @@ def plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle
     plt.legend(loc='upper right', fontsize=18)
     plt.show()
     fig.savefig(
-        "%s/%scluster_shuffle_label_size_l%d_%s.pdf" % (directory, "shuffled" if shuffled else '', level, label))
+        "%s/%s/%scluster_shuffle_label_size_l%d_%s.pdf" % (directory,algorithm, "shuffled" if shuffled else '', level, label))
 
 
-def make_heatmap(fraction_sites, directory, label, level, shuffled=False, normalise=False):
+def make_heatmap(fraction_sites, directory, label, level, shuffled=False, normalise=False,algorithm='topsbm'):
     sns.set(font_scale=2)
     found_classes = []
     for site, data in fraction_sites.items():
@@ -229,8 +229,8 @@ def make_heatmap(fraction_sites, directory, label, level, shuffled=False, normal
     heatmap = fig.subplots(1)
     heatmap = sns.heatmap(pd.DataFrame(data=fraction_sites).loc[:, found_classes].transpose(), vmin=0, cmap="RdYlBu_r",
                           xticklabels=x)
-    fig.savefig("%s/%sheatmap_cluster%s_l%d_%s.pdf" % (
-    directory, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level), label))
+    fig.savefig("%s/%s/%sheatmap_cluster%s_l%d_%s.pdf" % (
+    directory, algorithm, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level), label))
 
 
 def get_file(sample, df_file):
@@ -291,8 +291,8 @@ def customize_metric_plot(ax, xl):
     ax.legend(loc='best', fontsize=14)
 
 
-def plot_topic_size(directory, l):
-    df_topics = pd.read_csv("%s/topsbm/topsbm_level_%d_topics.csv" % (directory, l))
+def plot_topic_size(directory, l, algorithm='topsbm'):
+    df_topics = pd.read_csv("%s/%s/%s_level_%d_topics.csv" % (directory, algorithm,algorithm, l))
     sizes = []
     for t in df_topics.columns:
         sizes.append(len(df_topics.loc[:, t].dropna()))
@@ -309,11 +309,11 @@ def plot_topic_size(directory, l):
     ax.set_xscale('log')
     ax.set_yscale('log')
     plt.show()
-    fig.savefig("%s/topic_size_level%d.png" % (directory, l))
+    fig.savefig("%s/%s/topic_size_level%d.png" % (directory,algorithm, l))
 
 
-def get_candles(directory, level, ax):
-    df_topics = pd.read_csv("%s/topsbm/topsbm_level_%d_topics.csv" % (directory, level))
+def get_candles(directory, level, ax, algorithm='topsbm'):
+    df_topics = pd.read_csv("%s/%s/%s_level_%d_topics.csv" % (directory,algorithm,algorithm, level))
     candles = {
         'open': [],
         'high': [],
@@ -463,39 +463,39 @@ def get_scores(directory, labels, L=3, verbose=False):
     return scores
 
 
-def getclustersizesarray(directory, L=3):
+def getclustersizesarray(directory, L=3, algorithm='topsbm'):
     xl = []
     try:
-        xl = [len(get_cluster_given_l(li, directory)) for li in np.linspace(0, L, L + 1)]
+        xl = [len(get_cluster_given_l(li, directory,algorithm=algorithm)) for li in np.linspace(0, L, L + 1)]
     except:
         try:
-            xl = [len(get_cluster_given_l(li, directory)) for li in np.linspace(1, L, L)]
+            xl = [len(get_cluster_given_l(li, directory,algorithm=algorithm)) for li in np.linspace(1, L, L)]
         except:
             raise ("error saving clustersizes")
     return xl
 
 
-def gettopicsizesarray(directory, L=3):
+def gettopicsizesarray(directory, L=3, algorithm='topsbm'):
     xl = []
     try:
-        xl = [len(get_topic_given_l(li, directory)) for li in np.linspace(0, L, L + 1)]
+        xl = [len(get_topic_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(0, L, L + 1)]
     except:
         try:
-            xl = [len(get_topic_given_l(li, directory)) for li in np.linspace(1, L, L)]
+            xl = [len(get_topic_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(1, L, L)]
         except:
             raise ("error saving clustersizes")
     return xl
 
 
-def clusteranalysis(directory, labels, L=3):
-    df_clusters = pd.read_csv("%s/topsbm/topsbm_level_%d_clusters.csv" % (directory, L), header=[0])
+def clusteranalysis(directory, labels, L=3, algorithm='topsbm'):
+    df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory,algorithm, algorithm, L), header=[0])
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
     for label in labels:
         for level in np.arange(L + 1)[::-1]:
             if level == 0:
                 continue
             normalise = True
-            cluster = get_cluster_given_l(level, directory)
+            cluster = get_cluster_given_l(level, directory,algorithm=algorithm)
             fraction_sites = get_fraction_sites(cluster, df_files=df_files, label=label, normalise=normalise)
 
             # fsdf = pd.DataFrame(data=fraction_sites)
@@ -504,16 +504,16 @@ def clusteranalysis(directory, labels, L=3):
             # fraction_sites = fsdf.sort_values(by=fsdf.columns.to_list(), ascending=True).to_dict(orient='list')
 
             clustersinfo = get_clustersinfo(cluster, fraction_sites)
-            plot_cluster_composition(fraction_sites, directory, level, label=label, normalise=normalise)
-            make_heatmap(fraction_sites, directory, label, level, normalise=normalise)
+            plot_cluster_composition(fraction_sites, directory, level, label=label, normalise=normalise, algorithm=algorithm)
+            make_heatmap(fraction_sites, directory, label, level, normalise=normalise, algorithm=algorithm)
 
             normalise = False
-            cluster = get_cluster_given_l(level, directory)
+            cluster = get_cluster_given_l(level, directory, algorithm=algorithm)
             fraction_sites = get_fraction_sites(cluster, df_files=df_files, label=label, normalise=normalise)
             clustersinfo = get_clustersinfo(cluster, fraction_sites)
-            plot_maximum(clustersinfo, cluster, label, level, directory)
-            plot_maximum_size(clustersinfo, label, level, directory)
-            plot_maximum_label(clustersinfo, label, level, directory)
+            plot_maximum(clustersinfo, cluster, label, level, directory,algorithm=algorithm)
+            plot_maximum_size(clustersinfo, label, level, directory,algorithm=algorithm)
+            plot_maximum_label(clustersinfo, label, level, directory,algorithm=algorithm)
             try:
                 fraction_sites_shuffle = get_fraction_sites(cluster,
                                                             pd.read_csv("%s/files.dat.shuf" % directory, index_col=[0]),
@@ -521,10 +521,10 @@ def clusteranalysis(directory, labels, L=3):
                 clustersinfo_shuffle = get_clustersinfo(cluster, fraction_sites_shuffle)
                 plot_cluster_composition(fraction_sites_shuffle, directory, level, normalise=False, label=label,
                                          shuffled=True)
-                plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_shuffle)
-                plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffle)
-                plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuffle)
-                plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle)
+                plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_shuffle,algorithm=algorithm)
+                plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffle,algorithm=algorithm)
+                plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuffle,algorithm=algorithm)
+                plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle,algorithm=algorithm)
             except:
                 print("must shuffle files")
 
@@ -549,5 +549,5 @@ def clusteranalysis(directory, labels, L=3):
     # save files for R analisys
     for l in np.arange(L + 1):
         pd.DataFrame(data=define_labels(get_cluster_given_l(l, directory), df_files, label=labels[0])[1],
-                     columns=['l%d' % l]).to_csv("%s/topsbm/topsbm_level_%d_labels.csv" % (directory, l), header=True,
+                     columns=['l%d' % l]).to_csv("%s/%s/%s_level_%d_labels.csv" % (directory,algorithm,algorithm, l), header=True,
                                                  index=False)
