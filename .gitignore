@@ -58,3 +58,9 @@ corpus.*
 output/
 
 thesis/
+
+hSBM/\.cache/fontconfig/
+
+hSBM/\.python_history
+
+hSBM/\.bash_history

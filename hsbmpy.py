@@ -312,7 +312,7 @@ def plot_topic_size(directory, l, algorithm='topsbm'):
     fig.savefig("%s/%s/topic_size_level%d.png" % (directory,algorithm, l))
 
 
-def get_candles(directory, level, ax, algorithm='topsbm'):
+def get_candles(directory, level, df_mv, ax, algorithm='topsbm'):
     df_topics = pd.read_csv("%s/%s/%s_level_%d_topics.csv" % (directory,algorithm,algorithm, level))
     candles = {
         'open': [],
@@ -331,7 +331,7 @@ def get_candles(directory, level, ax, algorithm='topsbm'):
         candles['close'].append(np.max([q[0], 0]))
         candles['low'].append(np.max([0, avg - std]))
         candles['size'].append(len(subarr))
-    ax.set_title("[level: %d]" % (l))
+    ax.set_title("[level: %d]" % level)
     ax.set_ylabel('$O_i$', fontsize=18)
     ax.set_xlim(-1, len(df_topics.columns))
     ax.set_xticks([i + 1 for i in range(-1, len(df_topics.columns))])
@@ -395,7 +395,7 @@ def get_tissue_style(tissue):
     return (marker, c, ls)
 
 
-def topic_distr_sample(doc, ax=None):
+def topic_distr_sample(doc, df, ax=None):
     if ax == None:
         fig = plt.figure()
         ax = fig.subplots()
@@ -411,7 +411,7 @@ def topic_distr_sample(doc, ax=None):
     plt.show()
 
 
-def topic_distr_isample(idoc, ax=None):
+def topic_distr_isample(idoc, df, ax=None):
     topic_distr_sample(df[df['i_doc'] == idoc]['doc'].values[0], ax)
 
 
