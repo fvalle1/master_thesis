@@ -63,9 +63,9 @@ def genedistr(genedict, bins = 50, ax = None, density=False, label='', save=True
     else:
         fig=ax.get_figure()
     n, bin_edges, _ = ax.hist(genedict['data'], lw=1.5, density=density, histtype='step', range=_range, bins=bins, label=label)
-    ax.set_title(genedict['name'], fontsize=16)
-    ax.set_xlabel('%s'%metric, fontsize=16)
-    ax.set_ylabel('#', fontsize=16)
+    ax.set_title(genedict['name'], fontsize=20)
+    ax.set_xlabel('%s'%metric, fontsize=20)
+    ax.set_ylabel('#', fontsize=20)
     if logy:
         ax.set_yscale('log')
     if logx:
@@ -79,9 +79,9 @@ def geneplot(genedict, metric='fpkm'):
     """
     fig = plt.figure(figsize=(15, 5))
     plt.plot(genedict['data'], 'ob')
-    plt.title(genedict['name'], fontsize=16)
-    plt.xlabel("sample", fontsize=16)
-    plt.ylabel("%s"%metric, fontsize=16)
+    plt.title(genedict['name'], fontsize=20)
+    plt.xlabel("sample", fontsize=20)
+    plt.ylabel("%s"%metric, fontsize=20)
     plt.yscale('log')
     plt.ylim(ymin=1e-4)
     plt.show()
@@ -94,8 +94,8 @@ def genecoord(genedict, means, variances, metric='fpkm'):
     fig = plt.figure(figsize=(18,8))
     plt.scatter(means, variances)
     plt.scatter([np.average(genedict['data'])],[np.var(genedict['data'])], marker='x', c='r', s=90, label=genedict['name'])
-    plt.xlabel("$<%s>$"%metric, fontsize=16)
-    plt.ylabel("$\sigma^2_{%s}$"%metric, fontsize=16)
+    plt.xlabel("$<%s>$"%metric, fontsize=20)
+    plt.ylabel("$\sigma^2_{%s}$"%metric, fontsize=20)
     plt.yscale('log')
     plt.xlim(5e-5,np.power(10,np.log10(means.max())+1))
     plt.ylim((variances[variances.nonzero()].min()/10,np.power(10,np.log10(variances.max())+1)))
@@ -140,13 +140,13 @@ def plotvarmen(means, variances, ax = None, normalisation_str = "counts"):
 
     scatterdense(means, variances, ax=ax, label='genes')
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
-    ax.set_ylabel("$\sigma^2_{%s}$"%normalisation_str, fontsize=16)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
+    ax.set_ylabel("$\sigma^2_{%s}$"%normalisation_str, fontsize=20)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(np.nanmin(means[means.nonzero()])/5,np.power(10,np.log10(np.nanmax(means))+1))
     ax.set_ylim((np.nanmin(variances[variances.nonzero()])/10,np.power(10,np.log10(np.nanmax(variances))+1)))
-    ax.legend(fontsize=18)
+    ax.legend(fontsize=20)
     plt.show()
 
 def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
@@ -161,13 +161,13 @@ def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
 
     #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
-    ax.set_ylabel("$cv^2$", fontsize=16)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
+    ax.set_ylabel("$cv^2$", fontsize=20)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=18)
+    ax.legend(fontsize=20)
     plt.show()
     
     
@@ -193,13 +193,13 @@ def plotoversigmacv2(means,variances, ax=None, normalisation_str = "counts", how
     ax.plot((bin_edges[:-1] + bin_edges[1:])/2, bin_means+bin_sigmas*how_many_sigmas, lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
 
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=18)
-    ax.set_ylabel("$cv^2$", fontsize=18)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
+    ax.set_ylabel("$cv^2$", fontsize=20)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=18)
+    ax.legend(fontsize=20)
     plt.show()
 
 def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "counts", how_many_sigmas=3):
@@ -224,13 +224,13 @@ def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "co
     ax.hlines(bin_means+bin_sigmas*how_many_sigmas,bin_edges[1:], bin_edges[:-1], lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
 
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=16)
-    ax.set_ylabel("$cv^2$", fontsize=16)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
+    ax.set_ylabel("$cv^2$", fontsize=20)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=18)
+    ax.legend(fontsize=20)
     plt.show()
     
 def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3, knee=100):
