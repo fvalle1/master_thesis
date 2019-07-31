@@ -9,5 +9,5 @@ ADD run.py /home/user/
 
 WORKDIR /home/user/
 
-RUN chmod +x run.py
+ENTRYPOINT ["/home/user/run.py"]
 CMD ["python", "./run.py"]
