@@ -7,3 +7,6 @@
 [submodule "MSc_doc"]
 	path = MSc_doc
 	url = git@github.com:fvalle1/MSc_doc.git
+[submodule "hSBM_Topicmodel"]
+	path = hSBM_Topicmodel
+	url = git@github.com:fvalle1/hSBM_Topicmodel.git
