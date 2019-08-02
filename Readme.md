@@ -1,6 +1,9 @@
 # Network analysis on TCGA data
 
 ## Pipeline
+
+[Pipeline](Pipeline.ipynb) contains all the necessary steps to run a complete analysis
+
 ## Run statistics
 ```python
 import tacos
@@ -8,7 +11,7 @@ tacos.statistics()
 tacos.tacos.shuffleLabels()
 ```
 
-### make bipartite network
+### Make bipartite network
 ```bash
 python addo.py
 ```
@@ -18,12 +21,17 @@ tacos.makegraph()
 ```
 
 ## Run stochastic block model
+### interactively
 ```
-docker run -it -p8888:8888 -v ~/home/cloudadm/drive/:/home/user/ fvalle01/hsbm bash
+docker run -it -p8888:8888 -v $(PWD):/home/user/ fvalle01/hsbm bash
 jupyter notebook --ip0.0.0.0 --allow-root
 ```
 
-# Files
+### as executable
+```
+docker run -it -v $(PWD):/home/user/ fvalle01/hsbm:autorun
+```
+
 ## TCGA
 ### TCGA get manifest
 [TCGA_GetManifest](TCGA_GetManifest.ipynb) creates a file called *manifest.txt* that is useful to download data using `gdc-client download -m manifest.txt` command
@@ -31,7 +39,7 @@ jupyter notebook --ip0.0.0.0 --allow-root
 ### TCGA API
 [TCGA_API](TCGA_API.ipynb) is useful to retrieve informations about a single file (sample)
 
-##Table
+## Table
 ### Table creation
 [Table_Creation](Table_Creation.ipynb) reads a folder with the data downloaded with **gdc-client** and creates a mainTable.csv dataset
 
@@ -68,8 +76,7 @@ jupyter notebook --ip0.0.0.0 --allow-root
 [hSBM_topic-dist](hSBM_topic-dist.ipynb) analyse topic distribution inside samples
 
 
-
-# Analysis
+## Analysis
 Use [Tool for Analyse COmponents Systems](tacos)
 
 ## Zipf
@@ -77,12 +84,3 @@ Use [Zipf.ipynb](Zipf.ipynb) to plot Zipf and U (occurrence distribution)
 
 ## Heaps
 Use [Heaps.ipynb](Heaps.ipynb) to plot Heaps distibution
-
-# Topic Modelling
-
-Topic model can be run from Docker repository: https://hub.docker.com/r/fvalle01/hsbm
-```bash
-docker run -p8888:8888 -it fvalle01/hsbm bash
-
-jupyter notebook --ip 0.0.0.0 --allow-root
-```
