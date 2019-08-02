@@ -116,12 +116,6 @@ def get_clustersinfo(cluster, fraction_sites):
         clustersinfo['sizes'].append(size)
         clustersinfo['nclasses'].append(nclass)
         clustersinfo['homogeneity'].append(1 - homo)
-        homo = 0
-        maximum = 0
-        cumulative = 0
-        size = 0
-        nclass = 0
-        site_maximum = ''
     return clustersinfo
 
 
@@ -257,7 +251,8 @@ def define_labels(cluster, df_files, label='primary_site', verbose=False):
                 true_labels.append(get_file(sample, df_files)[label])
                 predicted_labels.append(c)
             except:
-                print("error in %s" % sample)
+                print(sys.exc_info()[0])
+                print("error searching %s in %s" % (label,sample))
     _, true_labels = np.unique(true_labels, return_inverse=True)
     return true_labels, predicted_labels
 
@@ -274,7 +269,7 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.2,
         'hSBM': 'green',
         'disease_type': 'red',
         'shuffle': 'orange',
-        'uniq': 'purple',
+        'disease_tissue': 'purple',
         'hierarchical': 'darkcyan',
         'lda': 'violet',
         'RPPA Clusters': 'red'
@@ -421,9 +416,16 @@ def topic_distr_sample(doc, df, ax=None):
 def topic_distr_isample(idoc, df, ax=None):
     topic_distr_sample(df[df['i_doc'] == idoc]['doc'].values[0], ax)
 
+def add_tumor_location(df_files):
+    df_files.insert(2, 'disease_tissue', '')
+    for sample in df_files.index.values:
+        row = df_files.loc[sample, :]
+        df_files.at[sample, 'disease_tissue'] = '%s[%s]' % (row['primary_site'], row['disease_type'])
 
 def get_scores(directory, labels, L=3, verbose=False):
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
+    if df_files.columns.isin(['disease_type']).any():
+        add_tumor_location(df_files)
     scores = {}
     for label in labels:
         scores[label] = {
