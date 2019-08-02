@@ -1,1 +1,0 @@
-../hsbm-occam/sbmtm.py
