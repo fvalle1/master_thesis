@@ -10,3 +10,6 @@
 [submodule "hSBM_Topicmodel"]
 	path = hSBM_Topicmodel
 	url = git@github.com:fvalle1/hSBM_Topicmodel.git
+[submodule "hierarchical_clustering_tensorflow"]
+	path = hierarchical_clustering_tensorflow
+	url = git@github.com:fvalle1/hierarchical_clustering_tensorflow.git
