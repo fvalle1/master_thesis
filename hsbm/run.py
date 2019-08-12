@@ -22,6 +22,7 @@ if __name__ == '__main__':
 	print("model created")
 	model.load_graph(filename = 'graph.xml.gz')
 	print("graph loaded")
+	print(model.g)
 	model.fit(n_init=2, verbose=True)
 	model.savedata()
 	print("ended")
