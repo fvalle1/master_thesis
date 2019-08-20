@@ -1,0 +1,48 @@
+name: phd
+channels:
+  - anaconda
+  - conda-forge
+  - r
+  - bioconda
+  - defaults
+dependencies:
+  - beautifulsoup4
+  - curl
+  - goatools
+  - gseapy
+  - jupyter
+  - jupyter_client
+  - numpy
+  - pandas
+  - pandoc
+  - pip=19.2
+  - python=3.6.9
+  - python-dateutil
+  - r-base
+  - r-irkernel
+  - regex
+  - requests
+  - scikit-learn
+  - seaborn
+  - sqlite
+  - statsmodels
+  - tensorboard
+  - tensorflow
+  - xz
+  - pip:
+    - biothings-client==0.2.0
+    - cachetools==2.1.0
+    - findspark==1.3.0
+    - future==0.17.1
+    - matplotlib==2.1.2
+    - networkx==2.0
+    - papermill==1.0.1
+    - pip==18.1
+    - pip-autoremove==0.9.1
+    - pyserial==3.4
+    - scipy==1.3.1
+    - serial==0.0.70
+    - setuptools==40.6.3
+    - telepyth==0.1.6
+    - watermark==1.8.2
+prefix: /Users/filippo/anaconda3/envs/phd
