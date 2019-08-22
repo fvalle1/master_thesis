@@ -498,7 +498,7 @@ def gettopicsizesarray(directory, l=3, algorithm='topsbm'):
 
 def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
     df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory, algorithm, algorithm, l), header=[0])
-    if df_clusters.isnull():
+    if df_clusters is None:
         print("files not found")
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
     for normalise in [True, False]:

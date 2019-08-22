@@ -13,6 +13,7 @@ dependencies:
   - jupyter
   - jupyter_client
   - numpy
+  - papermill
   - pandas
   - pandoc
   - pip=19.2
