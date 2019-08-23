@@ -19,7 +19,11 @@ WORKDIR /home/filippo
 RUN conda env create --name phd --file environment.yml
 
 RUN mkdir /home/filippo/files
+RUN chmod a+x /home/filippo/files
 COPY pipeline.py /home/filippo/files/
+COPY Pipeline.ipynb /home/filippo/files/
+COPY hsbmpy.py /home/filippo/files/
+COPY geneontology.py /home/filippo/files/
 
 USER filippo
 RUN /bin/bash -c "conda init bash"
