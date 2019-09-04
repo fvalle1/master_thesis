@@ -267,6 +267,7 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.2,
         'secondary_site': 'red',
         'status': 'red',
         'hSBM': 'green',
+        'mixed':'green',
         'disease_type': 'red',
         'shuffle': 'orange',
         'disease_tissue': 'purple',
@@ -422,7 +423,7 @@ def add_tumor_location(df_files):
         row = df_files.loc[sample, :]
         df_files.at[sample, 'disease_tissue'] = '%s[%s]' % (row['primary_site'], row['disease_type'])
 
-def get_scores(directory, labels, L=3, verbose=False):
+def get_scores(directory, labels, l=3, verbose=False):
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
     if df_files.columns.isin(['disease_type']).any():
         add_tumor_location(df_files)
@@ -433,16 +434,16 @@ def get_scores(directory, labels, L=3, verbose=False):
             'c': [],
             'V': []
         }
-        for l in np.arange(L + 1):
-            true_labels, predicted_labels = define_labels(get_cluster_given_l(l, directory), df_files, label=label)
-            scores[label]['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
-            scores[label]['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
-            scores[label]['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
+        for l in np.arange(l + 1):
             try:
+                true_labels, predicted_labels = define_labels(get_cluster_given_l(l, directory), df_files, label=label)
+                scores[label]['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
+                scores[label]['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
+                scores[label]['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
                 if verbose:
                     print(l)
             except:
-                pass
+                print("Skipping level ",l)
     if len(labels) >= 2:
         h = np.array(scores[labels[0]]['h'])
         c = np.array(scores[labels[1]]['c'])
@@ -457,11 +458,16 @@ def get_scores(directory, labels, L=3, verbose=False):
         'V': []
     }
     try:
-        for l in np.arange(0, L + 1):
-            if verbose:
-                print(l)
-            _, predicted_labels = define_labels(get_cluster_given_l(l, directory), df_files, label='primary_site')
-            true_labels, _ = define_labels(get_cluster_given_l(l, directory),
+        for l in np.arange(0, l + 1):
+            try:
+                if verbose:
+                    print(l)
+                clusters = get_cluster_given_l(l, directory)
+            except:
+                print("Skipping shuffled level ", l)
+                continue
+            _, predicted_labels = define_labels(clusters, df_files, label='primary_site')
+            true_labels, _ = define_labels(clusters,
                                            pd.read_csv("%s/files.dat.shuf" % directory, index_col=[0]),
                                            label='primary_site')
             scores['shuffle']['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
@@ -472,15 +478,19 @@ def get_scores(directory, labels, L=3, verbose=False):
     return scores
 
 
-def getclustersizesarray(directory, L=3, algorithm='topsbm'):
-    xl = []
+def getclustersizesarray(directory, l=3, algorithm='topsbm'):
     try:
-        xl = [len(get_cluster_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(0, L, L + 1)]
+        xl = [len(get_cluster_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(0, l, l + 1)]
     except:
         try:
-            xl = [len(get_cluster_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(1, L, L)]
+            xl = [len(get_cluster_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(1, l, l)]
         except:
-            raise ("error saving clustersizes")
+            xl=[]
+            for li in np.linspace(1, l, l):
+                try:
+                    xl.append(len(get_cluster_given_l(li, directory, algorithm=algorithm)))
+                except:
+                    pass
     return xl
 
 
@@ -492,9 +502,28 @@ def gettopicsizesarray(directory, l=3, algorithm='topsbm'):
         try:
             xl = [len(get_topic_given_l(li, directory, algorithm=algorithm)) for li in np.linspace(1, l, l)]
         except:
-            raise ("error saving clustersizes")
+            xl = []
+            for li in np.linspace(1, l, l):
+                try:
+                    xl.append(len(get_topic_given_l(li, directory, algorithm=algorithm)))
+                except:
+                    pass
     return xl
 
+def plot_sizes(level, directory, algorithm, ax=None):
+    cluster = get_cluster_given_l(level, directory, algorithm=algorithm)
+    if ax is None:
+        fig=plt.figure(figsize=(10,6))
+        ax=fig.subplots()
+    sizes=[]
+    for c in cluster.items():
+        sizes.append(len(c[1]))
+    ax.set_xlabel("size", fontsize=24)
+    ax.set_ylabel("number of clusters", fontsize=24)
+    ax.set_title("Cluster sizes at level %d"%level)
+    ax.hist(sizes, histtype='step', lw=4)
+    plt.savefig("%s/%s/sizes_distr_level%d.pdf"%(directory, algorithm, level))
+    plt.show()
 
 def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
     df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory, algorithm, algorithm, l), header=[0])
@@ -504,8 +533,6 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
     for normalise in [True, False]:
         for label in labels:
             for level in np.arange(l + 1)[::-1]:
-                if level == 0:
-                    continue
                 print(normalise, label, level)
                 try:
                     cluster = get_cluster_given_l(level, directory, algorithm=algorithm)
@@ -525,6 +552,7 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
                         plot_maximum(clustersinfo, cluster, label, level, directory, algorithm=algorithm)
                         plot_maximum_size(clustersinfo, label, level, directory, algorithm=algorithm)
                         plot_maximum_label(clustersinfo, label, level, directory, algorithm=algorithm)
+                        plot_sizes(level, directory, algorithm=algorithm)
                 except:
                     print(sys.exc_info()[0])
                 try:
@@ -568,3 +596,5 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
                      columns=['l%d' % l]).to_csv("%s/%s/%s_level_%d_labels.csv" % (directory, algorithm, algorithm, l),
                                                  header=True,
                                                  index=False)
+
+
