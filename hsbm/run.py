@@ -25,5 +25,6 @@ if __name__ == '__main__':
 	print(model.g)
 	model.fit(n_init=2, verbose=True)
 	model.savedata()
+    print("mdl: %f"%model.get_mdl())
 	print("ended")
 	print("it took ", time.time()-start, "seconds")

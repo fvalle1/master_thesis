@@ -156,7 +156,8 @@ class sbmtm():
                 if mdl_tmp < mdl:
                     mdl = 1.0*mdl_tmp
                     state = state_tmp.copy()
-
+            
+            self.mdl=mdl
             self.state = state
             ## minimum description length
             self.mdl = state.entropy()
@@ -442,6 +443,9 @@ class sbmtm():
     ###########
     ########### HELPER FUNCTIONS
     ###########
+    def get_mdl(self):
+        return self.mdl
+    
     ## get group-topic statistics
     def get_groups(self,l=0):
         '''
