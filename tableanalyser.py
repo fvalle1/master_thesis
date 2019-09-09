@@ -102,7 +102,7 @@ def genecoord(genedict, means, variances, metric='fpkm'):
     plt.legend()
     plt.show()
     fig.savefig("plot/genes/%s_coord.png"%(genedict['name']))
-    
+
 def discretize(column, nquartiles=10):
     quantiles = np.quantile(column,np.arange(0,1,1./nquartiles)[1:])
     c = np.digitize(column, quantiles) + 1
@@ -120,7 +120,7 @@ def discretize_df_columns(df):
     return qdf
 
 df_symbols= pd.read_csv("gene_symbol.txt", index_col=[0])
-    
+
 def get_symbol(ensg):
     '''
     convert ensg to symbol
@@ -129,7 +129,16 @@ def get_symbol(ensg):
         return df_symbols.at[ensg,'Description']
     else:
         return ''
-    
+
+def get_ensg(description):
+    '''
+    convert descr to ensg
+    '''
+    if description in df_symbols['Description'].values:
+        return df_symbols[df_symbols['Description']==description].index[0]
+    else:
+        return ''
+
 def plotvarmen(means, variances, ax = None, normalisation_str = "counts"):
     x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
     if ax is None:
@@ -169,8 +178,8 @@ def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
     ax.legend(fontsize=20)
     plt.show()
-    
-    
+
+
 def plotoversigmacv2(means,variances, ax=None, normalisation_str = "counts", how_many_sigmas=3):
     x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
     cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
@@ -232,7 +241,7 @@ def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "co
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
     ax.legend(fontsize=20)
     plt.show()
-    
+
 def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3, knee=100):
     '''
     \param method can be 'sampling', 'sigma'
@@ -261,14 +270,14 @@ def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3,
         over_plot.append([mean,cv2,occ])
     over_plot=np.array(over_plot)
     return (over,over_plot)
-    
+
 def get_mean_cv2_sampling(mean, cv2, knee=1., distance=10):
     if mean < knee:
         return(mean, cv2, -1, -1, cv2 > distance+1./mean)
     else:
         return(mean, cv2, -1, -1, cv2 > 1e-1+distance)
-    
-    
+
+
 def get_mean_cv2_sigma(mean, cv2, how_many_sigmas=3):
     bin_i = 0
     for i in range(len(bin_edges[:-1])):
@@ -276,7 +285,7 @@ def get_mean_cv2_sigma(mean, cv2, how_many_sigmas=3):
             bin_i = i
             break
     return(mean, cv2, bin_means[bin_i], bin_sigmas[bin_i], cv2>(bin_means[bin_i]+how_many_sigmas*bin_sigmas[bin_i]))
-    
+
 def scalinglawsandoverexpressed(working_dir, normalisation_str = "counts", method='sampling', how_many_sigmas=3, distance=10):
     os.chdir(working_dir)
     df = pd.read_csv(("mainTable.csv"), index_col=[0])

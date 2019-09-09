@@ -24,6 +24,7 @@ if __name__ == '__main__':
 	print("graph loaded")
 	print(model.g)
 	model.fit(n_init=2, verbose=True)
+	model.plot()
 	model.savedata()
     print("mdl: %f"%model.get_mdl())
 	print("ended")
