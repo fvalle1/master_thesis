@@ -327,13 +327,14 @@ def define_labels(cluster, df_files, label='primary_site', verbose=False):
     return true_labels, predicted_labels
 
 
-def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.2, **kwargs):
+def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8, **kwargs):
     '''
     add to ax lines in scores
     add homogeneity and completness if required by h and c
     '''
     colors = {
         'primary_site': 'blue',
+        'hsbm': 'blue',
         'secondary_site': 'red',
         'status': 'red',
         'hSBM': 'green',
@@ -345,13 +346,14 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.2,
         'lda': 'violet',
         'RPPA Clusters': 'red'
     }
+
     for label in labels:
         if h:
-            ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], alpha=alpha, label='homogeneity - %s' % label)
+            ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], marker='x', lw=0.5, ms = 12, alpha=alpha, label='homogeneity - %s' % label)
         if c:
-            ax.plot(xl, scores[label]['c'], ls=':', c=colors[label], alpha=alpha, label='completness - %s' % label)
+            ax.plot(xl, scores[label]['c'], ls=':', c=colors[label], marker='o', lw=0.5, ms = 12, alpha=alpha, label='completness - %s' % label)
         if len(scores[label]['V']) == len(xl):
-            ax.plot(xl, scores[label]['V'], label='MI - %s' % label, ls='-', c=colors[label], **kwargs)
+            ax.plot(xl, scores[label]['V'], label='%s' % label, ls='-', c=colors[label], marker='<', lw=0.5, ms = 12, **kwargs)
     customize_metric_plot(ax, xl)
 
 

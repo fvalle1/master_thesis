@@ -46,4 +46,6 @@ dependencies:
     - setuptools==40.6.3
     - telepyth==0.1.6
     - watermark==1.8.2
+    - pandarallel
+    - keras
 prefix: /Users/filippo/anaconda3/envs/phd
