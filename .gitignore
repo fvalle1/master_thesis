@@ -67,3 +67,7 @@ hSBM/\.bash_history
 
 Pipeline_out.ipynb
 gdc-client
+
+docker/core
+
+docker/data_mining
