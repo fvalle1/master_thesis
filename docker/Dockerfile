@@ -1,6 +1,6 @@
 FROM continuumio/anaconda3:2019.07
 
-MAiNTAINER Filippo Valle filippo.valle@edu.unito.it
+MAINTAINER Filippo Valle filippo.valle@edu.unito.it
 
 USER root
 
@@ -13,24 +13,31 @@ RUN useradd -m -g users filippo
 
 RUN conda update conda
 
-COPY environment.yml /home/filippo/
+RUN mkdir /home/filippo/tacos 
+RUN mkdir /home/filippo/tacos/files
 
-WORKDIR /home/filippo
+COPY environment.yml /home/filippo/tacos
+
+WORKDIR /home/filippo/tacos
 RUN conda env create --name phd --file environment.yml
 
-RUN mkdir /home/filippo/files
-RUN chmod a+x /home/filippo/files
-COPY pipeline.py /home/filippo/files/
-COPY Pipeline.ipynb /home/filippo/files/
-COPY hsbmpy.py /home/filippo/files/
-COPY geneontology.py /home/filippo/files/
+RUN chmod a+rwx -R /home/filippo/
+COPY pipeline.py /home/filippo/tacos/
+COPY Pipeline.ipynb /home/filippo/tacos/
+COPY hsbmpy.py /home/filippo/tacos/
+COPY tableanalyser.py /home/filippo/tacos/
+COPY tacos_plot.py /home/filippo/tacos/ 
+COPY geneontology.py /home/filippo/tacos/
+COPY genes.txt /home/filippo/tacos/
+COPY gene_symbol.txt /home/filippo/tacos/
+
 
 USER filippo
 RUN /bin/bash -c "conda init bash"
 RUN echo "source activate phd" >> $HOME/.bashrc
 RUN /bin/bash -c "source $HOME/.bashrc"
 
-WORKDIR /home/filippo/files
+WORKDIR /home/filippo/tacos
 
-ENTRYPOINT /bin/bash -c "python pipeline.py"
+ENTRYPOINT /bin/bash -c "/opt/conda/envs/phd/bin/python pipeline.py"
 CMD [""]
