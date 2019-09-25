@@ -2,20 +2,19 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 
-samples = pd.read_csv("/Users/filippo/Developer/tesi/gtex/files.dat", index_col=[0])
 
-def get_generic_tissue_from_specific(tissue, samples=samples):
+def get_generic_tissue_from_specific(tissue, samples=None):
     return samples[samples['secondary_site']==tissue]['primary_site'].values[0]
 
-def get_specific_mapping_to(tissue, samples=samples):
+def get_specific_mapping_to(tissue, samples=None):
     return samples[samples['primary_site']==tissue]['secondary_site'].unique()
 
-def get_gtex_tissue(sample):
+def get_gtex_tissue(sample, samples=None):
     for fullsample in samples.index.values:
         if sample in fullsample:
             return samples.loc[fullsample,:]
 
-def makePie(df_clusters, level, c, whatToLookFor = ['primary_site','secondary_site']):
+def makePie(df_clusters, level, c, whatToLookFor = ['primary_site','secondary_site'], samples=None):
     c=int(c)
     level=int(level)
     fig = plt.figure(figsize=(60,15))
