@@ -294,7 +294,7 @@ def scalinglawsandoverexpressed(working_dir, normalisation_str = "counts", metho
     nfiles = len(df.columns)
     print("genes:%d\trealizations:%d"%(ngenes,nfiles))
     df_mv = pd.read_csv("meanVariances.csv", index_col = [0])
-    df_mv.dropna(axis=0,how='any',inplace=True)
+    df_mv.dropna(axis=0,how='all',inplace=True)
     print(df_mv.info())
     means = df_mv['mean'].values
     variances = df_mv['variance'].values
