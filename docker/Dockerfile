@@ -31,13 +31,26 @@ COPY geneontology.py /home/filippo/tacos/
 COPY genes.txt /home/filippo/tacos/
 COPY gene_symbol.txt /home/filippo/tacos/
 
+WORKDIR /home/filippo/tacos
+
+RUN apt-get update && apt-get install git cmake libboost-all-dev g++ --yes
+RUN git clone https://github.com/fvalle1/tacos.git
+WORKDIR /home/filippo/tacos/tacos/
+RUN mkdir build
+RUN git checkout telegramclear
+WORKDIR /home/filippo/tacos/tacos/build
+RUN cmake ..
+RUN make data_mining
+RUN ./data_mining
+RUN mv /home/filippo/tacos/tacos/build/data_mining /home/filippo/tacos/.
+
+
+WORKDIR /home/filippo/tacos
 
 USER filippo
 RUN /bin/bash -c "conda init bash"
 RUN echo "source activate phd" >> $HOME/.bashrc
 RUN /bin/bash -c "source $HOME/.bashrc"
-
-WORKDIR /home/filippo/tacos
 
 ENTRYPOINT /bin/bash -c "/opt/conda/envs/phd/bin/python pipeline.py"
 CMD [""]
