@@ -1,0 +1,7 @@
+version: '2'
+services:
+  tacos:
+    build: .
+    image: tacos
+    volumes:
+      - $HOME/Developer/tesi/docker:/home/filippo/tacos/files/
