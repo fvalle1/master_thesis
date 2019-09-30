@@ -39,6 +39,8 @@ ADD run.py /home/filippo/
 
 RUN chmod a+x /home/filippo/run.py
 
+RUN mkdir /home/filippo/files
+
 USER filippo
 ENTRYPOINT ["python", "run.py"]
 CMD ["2"]
