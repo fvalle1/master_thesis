@@ -4,10 +4,16 @@ import numpy as np
 
 
 def get_generic_tissue_from_specific(tissue, samples=None):
-    return samples[samples['secondary_site']==tissue]['primary_site'].values[0]
+    if tissue in samples['secondary_site']:
+        return samples[samples['secondary_site']==tissue]['primary_site'].values[0]
+    else:
+        return tissue
 
 def get_specific_mapping_to(tissue, samples=None):
-    return samples[samples['primary_site']==tissue]['secondary_site'].unique()
+    if tissue in samples['primary_site']:
+        return samples[samples['primary_site']==tissue]['secondary_site'].unique()
+    else:
+        return tissue
 
 def get_gtex_tissue(sample, samples=None):
     for fullsample in samples.index.values:
