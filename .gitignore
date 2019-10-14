@@ -71,3 +71,5 @@ gdc-client
 docker/core
 
 docker/data_mining
+
+*.RData

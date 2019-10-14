@@ -156,11 +156,11 @@ class sbmtm():
                 if mdl_tmp < mdl:
                     mdl = 1.0*mdl_tmp
                     state = state_tmp.copy()
-            
+
             self.mdl=mdl
             self.state = state
             ## minimum description length
-            self.mdl = state.entropy()
+            self.mdl = self.state.entropy()
             ## collect group membership for each level in the hierarchy
             L = len(state.levels)
             dict_groups_L = {}
@@ -179,7 +179,7 @@ class sbmtm():
                     dict_groups_L[l] = dict_groups_l
             self.groups = dict_groups_L
 
-    def fit_overlap(self,overlap = True, hierarchical = True, B_min = 20, B_max = 160, verbose = True):
+    def fit_overlap(self, n_init=1, overlap = True, hierarchical = True, B_min = 20, B_max = 160, verbose = True):
         '''
         Fit the sbm to the word-document network.
         - overlap, bool (default: True). Overlapping groups.
@@ -195,8 +195,8 @@ class sbmtm():
             state_args["eweight"] = g.ep.count
 
         self.state = gt.minimize_nested_blockmodel_dl(g,B_min=B_min, B_max=B_max, overlap=True, verbose=verbose, nonoverlap_init=False,deg_corr=True)
-        self.mdl=state.entropy()
-        self.L = len(self.state.levels)
+        self.mdl=self.state.entropy()
+        L = len(self.state.levels)
         dict_groups_L = {}
         if L == 2:
             self.L = 1
@@ -445,7 +445,7 @@ class sbmtm():
     ###########
     def get_mdl(self):
         return self.mdl
-    
+
     ## get group-topic statistics
     def get_groups(self,l=0):
         '''
@@ -589,7 +589,7 @@ class sbmtm():
         plt.colorbar()
         fig.savefig("p_tw_d_%d.png"%l)
 
-    def savedata(self):
+    def save_data(self):
         for i in range(len(self.state.get_levels())-2)[::-1]:
             print("Saving level %d"%i)
             self.print_topics(l=i)

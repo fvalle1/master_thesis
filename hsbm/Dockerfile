@@ -42,5 +42,5 @@ RUN chmod a+x /home/filippo/run.py
 RUN mkdir /home/filippo/files
 
 USER filippo
-ENTRYPOINT ["python", "run.py"]
+ENTRYPOINT ["python", "/home/filippo/run.py"]
 CMD ["2"]
