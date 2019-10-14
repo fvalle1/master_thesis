@@ -247,6 +247,11 @@ def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3,
     \param method can be 'sampling', 'sigma'
     '''
     over = []
+    if 'sigma' in method:
+        log_bins_for_x = np.logspace(np.log10(df_mv['mean'][df_mv['mean']!=0].min()),5,25)
+        cv2=df_mv['variance']/df_mv['mean']/df_mv['mean']
+        bin_means,bin_edges ,_ = st.binned_statistic(df_mv['mean'], cv2, statistic='mean', bins=log_bins_for_x)
+        bin_sigmas, _ ,_ = st.binned_statistic(df_mv['mean'], cv2,statistic='std', bins=log_bins_for_x)          
     for g in df_mv.index:
         subdf = df_mv.loc[g,:]
         mean = float(subdf['mean'])
@@ -256,7 +261,7 @@ def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3,
         if 'sampling' in method:
             r = func(mean,float(var)/mean/mean, knee=knee, distance=distance)
         elif 'sigma' in method:
-            r = func(mean,float(var)/mean/mean, how_many_sigmas=how_many_sigmas)
+            r = func(mean,float(var)/mean/mean, bin_means=bin_means, bin_sigmas=bin_sigmas, bin_edges=bin_edges,how_many_sigmas=how_many_sigmas)
         if r[4]:
             over.append(g)
     print("found %d highly variable genes"%len(over))

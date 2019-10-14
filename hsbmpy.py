@@ -9,18 +9,26 @@ import seaborn as sns
 from sklearn import metrics
 
 #get colors from https://medialab.github.io/iwanthue/ or artenatevly from http://phrogz.net/css/distinct-colors.html
-colors_cycle = ["#a257d4",
-"#e090bf",
-"#64c9a3",
-"#4b68ae",
-"#dc8c2f",
-"#cd41a7",
-"#d9344f",
-"#bc599a",
-"#afa1e8",
-"#48c1d8",
-"#b54545",
-"#919233",
+colors_cycle = ["#c866ba",
+"#60b055",
+"#695cbb",
+"#9ca83f",
+"#8097dd",
+"#cd9141",
+"#486691",
+"#a74728",
+"#51bf99",
+"#a93969",
+"#406d2f",
+"#dc5f67",
+"#64b2c9",
+"#756731",
+"#7b4d81",
+"#8eac79",
+"#cc92b8",
+"#3b796b",
+"#d0997f",
+"#8a524b",
 "#9a78be",
 "#59602a",
 "#4e8e2c",
@@ -69,14 +77,15 @@ def plot_cluster_composition(fraction_sites, directory, level, normalise=False, 
     fig=plt.figure(figsize=(15,8))
     ax=fig.subplots()
     fraction_bar_plot(x,fraction_sites,ax)
-    ax.set_xlabel("cluster", fontsize=20)
+    ax.set_xlabel("cluster", fontsize=22)
     if normalise:
-        ax.set_ylabel("fraction of nodes", fontsize=20)
+        ax.set_ylabel("fraction of nodes", fontsize=22)
     else:
-        ax.set_ylabel("number of nodes", fontsize=20)
-    ax.set_title("%s%s distribution across clusters" % ("Shuffled " if shuffled else '', label), fontsize=20)
-    ax.legend(ncol=3)
+        ax.set_ylabel("number of nodes", fontsize=22)
+    ax.set_title("%s%s distribution across clusters" % ("Shuffled " if shuffled else '', label), fontsize=24)
+    ax.legend(loc=1, ncol=3, fontsize=16)
     ax.set_xticks(x)
+    ax.tick_params(axis='both', labelsize=20)
     plt.show()
     fig.savefig("%s/%s/%s%sclustercomposition_l%d_%s.pdf" % (
         directory, algorithm, "shuffled" if shuffled else '', "fraction_" if normalise else '', int(level), label))
@@ -203,11 +212,15 @@ def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_sh
         ax[1].hist(np.sort(shuffled), histtype='step', bins=bins, lw=4, density=True, range=(0.05, 1.05))
         shuffled = True
     ax[0].plot(np.arange(len(cluster)), [0.8 for i in range(len(cluster))], visible=True, ls='--')
+    for axi in ax :
+        axi.tick_params(axis='both', labelsize=20)
     ax[0].set_xlabel("cluster", fontsize=20)
     ax[0].set_ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     ax[0].set_ylim((0, 1.1))
     ax[1].set_xlabel("maximum fraction\nwith same %s" % label, fontsize=20)
     ax[1].set_ylabel("pdf", fontsize=20)
+    plt.rc('xtick',labelsize=16)
+    plt.rc('ytick',labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%scluster_maximum_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -231,6 +244,8 @@ def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffl
     plt.ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     plt.ylim((0, 1.1))
     plt.legend(loc='best', fontsize=20)
+    plt.rc('xtick',labelsize=16)
+    plt.rc('ytick',labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%sclusterhomosize_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -255,6 +270,8 @@ def plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuff
     plt.xlabel("number of labels", fontsize=20)
     plt.ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     plt.ylim((0, 1.1))
+    plt.rc('xtick',labelsize=16)
+    plt.rc('ytick',labelsize=16)
     plt.legend(loc='lower right', fontsize=20)
     plt.show()
     fig.savefig(
@@ -279,6 +296,8 @@ def plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle
     plt.xlabel("cluster size", fontsize=20)
     plt.ylabel("number of labels", fontsize=20)
     plt.legend(loc='upper right', fontsize=20)
+    plt.rc('xtick',labelsize=16)
+    plt.rc('ytick',labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%scluster_shuffle_label_size_l%d_%s.pdf" % (
