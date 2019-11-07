@@ -4,4 +4,4 @@ services:
     build: .
     image: tacos
     volumes:
-      - .:/home/filippo/tacos/files/
+      - .:/home/filippo/tacos/files

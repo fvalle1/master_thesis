@@ -11,7 +11,7 @@ ENV PATH="/opt/conda/bin:$PATH"
 
 RUN useradd -m -g users filippo
 
-RUN conda update conda
+RUN conda update conda --yes
 
 RUN mkdir /home/filippo/tacos 
 RUN mkdir /home/filippo/tacos/files
@@ -28,8 +28,8 @@ COPY hsbmpy.py /home/filippo/tacos/
 COPY tableanalyser.py /home/filippo/tacos/
 COPY tacos_plot.py /home/filippo/tacos/ 
 COPY geneontology.py /home/filippo/tacos/
-COPY genes.txt /home/filippo/tacos/
 COPY gene_symbol.txt /home/filippo/tacos/
+COPY genes.txt /home/filippo/tacos/
 
 WORKDIR /home/filippo/tacos
 
@@ -37,7 +37,6 @@ RUN apt-get update && apt-get install git cmake libboost-all-dev g++ --yes
 RUN git clone https://github.com/fvalle1/tacos.git
 WORKDIR /home/filippo/tacos/tacos/
 RUN mkdir build
-RUN git checkout telegramclear
 WORKDIR /home/filippo/tacos/tacos/build
 RUN cmake ..
 RUN make data_mining
