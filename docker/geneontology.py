@@ -13,3 +13,9 @@ def ensg_to_symbol(series):
         except:
             pass
     return symbols
+
+def topicanalysis():
+    '''
+    Work in progress
+    '''
+    pass
