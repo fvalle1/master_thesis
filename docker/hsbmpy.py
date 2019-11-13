@@ -1,8 +1,11 @@
+import os
+
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import sys
 import seaborn as sns
+
 sns.set()
 sns.set_context("paper")
 from sklearn import metrics
@@ -74,7 +77,7 @@ def plot_cluster_composition(fraction_sites, directory, level, normalise=False, 
     else:
         ax.set_ylabel("number of nodes", fontsize=20)
     ax.set_title("%s%s distribution across clusters" % ("Shuffled " if shuffled else '', label), fontsize=20)
-    ax.legend(ncol=3,loc='upper right')
+    ax.legend(ncol=3, loc='upper right')
     ax.set_xticks(x)
     ax.tick_params(axis='both', labelsize=20)
     plt.show()
@@ -99,23 +102,23 @@ def fraction_bar_plot(x, fraction_sites, ax=None):
 
 def get_Palette(site):
     palette_map = dict({'Brain': 'Blues',
-                         'Breast': 'Reds',
-                         'Kidney': 'Greens',
-                         'Lung': 'Oranges',
-                         'Thyroid': 'Greys',
-                         'Uterus': 'Purples',
-                         'Prostate': 'BuGn',
-                         'Ovary': 'BuPu',
-                         'Lymph Nodes': 'OrRd',
-                         'Soft Tissue': 'PuRd',
-                         'Esophagus': 'YlGn',
-                         'Stomach': 'YlRd',
-                         'Bone Marrow': 'PuBuGn',
-                         'Skin':'YlOrRd',
+                        'Breast': 'Reds',
+                        'Kidney': 'Greens',
+                        'Lung': 'Oranges',
+                        'Thyroid': 'Greys',
+                        'Uterus': 'Purples',
+                        'Prostate': 'BuGn',
+                        'Ovary': 'BuPu',
+                        'Lymph Nodes': 'OrRd',
+                        'Soft Tissue': 'PuRd',
+                        'Esophagus': 'YlGn',
+                        'Stomach': 'YlRd',
+                        'Bone Marrow': 'PuBuGn',
+                        'Skin': 'YlOrRd',
                         'Adipose Tissue': 'YlOrBr',
-                        'Blood':'RdPu',
-                        'Pancreas':'OrRd',
-                        'testis':'GnBu'})
+                        'Blood': 'RdPu',
+                        'Pancreas': 'OrRd',
+                        'testis': 'GnBu'})
     for k in palette_map.keys():
         if k in site:
             return palette_map[k]
@@ -232,15 +235,15 @@ def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_sh
         ax[1].hist(np.sort(shuffled), histtype='step', bins=bins, lw=4, density=True, range=(0.05, 1.05))
         shuffled = True
     ax[0].plot(np.arange(len(cluster)), [0.8 for i in range(len(cluster))], visible=True, ls='--')
-    for axi in ax :
+    for axi in ax:
         axi.tick_params(axis='both', labelsize=20)
     ax[0].set_xlabel("cluster", fontsize=20)
     ax[0].set_ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     ax[0].set_ylim((0, 1.1))
     ax[1].set_xlabel("maximum fraction\nwith same %s" % label, fontsize=20)
     ax[1].set_ylabel("pdf", fontsize=20)
-    plt.rc('xtick',labelsize=16)
-    plt.rc('ytick',labelsize=16)
+    plt.rc('xtick', labelsize=16)
+    plt.rc('ytick', labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%scluster_maximum_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -264,8 +267,8 @@ def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffl
     plt.ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     plt.ylim((0, 1.1))
     plt.legend(loc='best', fontsize=20)
-    plt.rc('xtick',labelsize=16)
-    plt.rc('ytick',labelsize=16)
+    plt.rc('xtick', labelsize=16)
+    plt.rc('ytick', labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%sclusterhomosize_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -290,8 +293,8 @@ def plot_maximum_label(clustersinfo, label, level, directory, clustersinfo_shuff
     plt.xlabel("number of labels", fontsize=20)
     plt.ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     plt.ylim((0, 1.1))
-    plt.rc('xtick',labelsize=16)
-    plt.rc('ytick',labelsize=16)
+    plt.rc('xtick', labelsize=16)
+    plt.rc('ytick', labelsize=16)
     plt.legend(loc='lower right', fontsize=20)
     plt.show()
     fig.savefig(
@@ -316,8 +319,8 @@ def plot_labels_size(clustersinfo, label, level, directory, clustersinfo_shuffle
     plt.xlabel("cluster size", fontsize=20)
     plt.ylabel("number of labels", fontsize=20)
     plt.legend(loc='upper right', fontsize=20)
-    plt.rc('xtick',labelsize=16)
-    plt.rc('ytick',labelsize=16)
+    plt.rc('xtick', labelsize=16)
+    plt.rc('ytick', labelsize=16)
     plt.show()
     fig.savefig(
         "%s/%s/%scluster_shuffle_label_size_l%d_%s.pdf" % (
@@ -719,3 +722,8 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
                      columns=['l%d' % l]).to_csv("%s/%s/%s_level_%d_labels.csv" % (directory, algorithm, algorithm, l),
                                                  header=True,
                                                  index=False)
+
+
+def get_max_available_L(directory, algorithm='topsbm'):
+    return np.array([el.split("_")[2] for el in os.listdir("%s%s" % (directory, algorithm)) if "level_" in el],
+                    dtype=int).max()
