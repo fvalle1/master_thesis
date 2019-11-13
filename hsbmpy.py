@@ -173,7 +173,10 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                 norm = float(len(cluster[i]))
             else:
                 norm = 1
-            fraction_sites[site].append(c_fraction_site[site] / norm)
+            if norm!=0:
+                fraction_sites[site].append(c_fraction_site[site] / norm)
+            else:
+                fraction_sites[site].append(0)
             c_fraction_site[site] = 0
     df = pd.DataFrame(data=fraction_sites)
     ##put first columns that have high values in average
