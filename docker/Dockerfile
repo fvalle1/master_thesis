@@ -13,23 +13,13 @@ RUN useradd -m -g users filippo
 
 RUN conda update conda --yes
 
-RUN mkdir /home/filippo/tacos 
+RUN mkdir /home/filippo/tacos
 RUN mkdir /home/filippo/tacos/files
 
 COPY environment.yml /home/filippo/tacos
 
 WORKDIR /home/filippo/tacos
 RUN conda env create --name phd --file environment.yml
-
-RUN chmod a+rwx -R /home/filippo/
-COPY pipeline.py /home/filippo/tacos/
-COPY Pipeline.ipynb /home/filippo/tacos/
-COPY hsbmpy.py /home/filippo/tacos/
-COPY tableanalyser.py /home/filippo/tacos/
-COPY tacos_plot.py /home/filippo/tacos/ 
-COPY geneontology.py /home/filippo/tacos/
-COPY gene_symbol.txt /home/filippo/tacos/
-COPY genes.txt /home/filippo/tacos/
 
 WORKDIR /home/filippo/tacos
 
@@ -43,8 +33,17 @@ RUN make data_mining
 RUN ./data_mining
 RUN mv /home/filippo/tacos/tacos/build/data_mining /home/filippo/tacos/.
 
-
 WORKDIR /home/filippo/tacos
+
+RUN chmod a+rwx -R /home/filippo/
+COPY pipeline.py /home/filippo/tacos/
+COPY Pipeline.ipynb /home/filippo/tacos/
+COPY hsbmpy.py /home/filippo/tacos/
+COPY tableanalyser.py /home/filippo/tacos/
+COPY tacos_plot.py /home/filippo/tacos/
+COPY geneontology.py /home/filippo/tacos/
+COPY gene_symbol.txt /home/filippo/tacos/
+COPY genes.txt /home/filippo/tacos/
 
 USER filippo
 RUN /bin/bash -c "conda init bash"
