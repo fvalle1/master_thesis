@@ -37,6 +37,7 @@ WORKDIR /home/filippo/tacos
 
 RUN chmod a+rwx -R /home/filippo/
 COPY pipeline.py /home/filippo/tacos/
+COPY addo.py /home/filippo/tacos/
 COPY Pipeline.ipynb /home/filippo/tacos/
 COPY hsbmpy.py /home/filippo/tacos/
 COPY tableanalyser.py /home/filippo/tacos/
@@ -44,6 +45,8 @@ COPY tacos_plot.py /home/filippo/tacos/
 COPY geneontology.py /home/filippo/tacos/
 COPY gene_symbol.txt /home/filippo/tacos/
 COPY genes.txt /home/filippo/tacos/
+RUN chmod a+rwx -R /home/filippo/tacos/*
+
 
 USER filippo
 RUN /bin/bash -c "conda init bash"

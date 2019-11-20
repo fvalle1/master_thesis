@@ -725,5 +725,5 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
 
 
 def get_max_available_L(directory, algorithm='topsbm'):
-    return np.array([el.split("_")[2] for el in os.listdir("%s%s" % (directory, algorithm)) if "level_" in el],
+    return np.array([el.split("_")[2] for el in os.listdir("%s/%s" % (directory, algorithm)) if "level_" in el],
                     dtype=int).max()

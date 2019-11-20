@@ -5,5 +5,6 @@ pm.execute_notebook(
    'Pipeline_out.ipynb',
    parameters = dict(
    workingdir="/home/filippo/tacos/files",
-   execdir="/home/filippo/tacos")
+   execdir="/home/filippo/tacos",
+   distance=25)
 )
