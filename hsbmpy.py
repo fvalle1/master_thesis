@@ -167,6 +167,11 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                         foundsample = df_files.loc[fullsample, :]
                 c_fraction_site[foundsample[label]] += 1
             except:
+                if 'unknown' in c_fraction_site.keys():
+                    c_fraction_site['unknown'] +=1
+                else:
+                    c_fraction_site['unknown'] = 1
+                    fraction_sites['unknown']=[]
                 print("error in %s" % sample)
         for site in fraction_sites:
             if normalise:
@@ -245,8 +250,8 @@ def plot_maximum(clustersinfo, cluster, label, level, directory, clustersinfo_sh
     ax[0].set_ylim((0, 1.1))
     ax[1].set_xlabel("maximum fraction\nwith same %s" % label, fontsize=20)
     ax[1].set_ylabel("pdf", fontsize=20)
-    plt.rc('xtick', labelsize=16)
-    plt.rc('ytick', labelsize=16)
+    plt.rc('xtick', labelsize=18)
+    plt.rc('ytick', labelsize=18)
     plt.show()
     fig.savefig(
         "%s/%s/%scluster_maximum_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -270,8 +275,8 @@ def plot_maximum_size(clustersinfo, label, level, directory, clustersinfo_shuffl
     plt.ylabel("maximum fraction\nwith same %s" % label, fontsize=20)
     plt.ylim((0, 1.1))
     plt.legend(loc='best', fontsize=20)
-    plt.rc('xtick', labelsize=16)
-    plt.rc('ytick', labelsize=16)
+    plt.rc('xtick', labelsize=18)
+    plt.rc('ytick', labelsize=18)
     plt.show()
     fig.savefig(
         "%s/%s/%sclusterhomosize_l%d_%s.pdf" % (directory, algorithm, "shuffled" if shuffled else '', level, label))
@@ -395,6 +400,8 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8,
     }
 
     for label in labels:
+        if label not in colors.keys():
+            colors[label]='darkblue'
         if h:
             ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], marker='x', lw=0.5, ms=12, alpha=alpha,
                     label='homogeneity - %s' % label)
@@ -404,6 +411,8 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8,
         if len(scores[label]['V']) == len(xl):
             ax.plot(xl, scores[label]['V'], label='%s' % label, ls='-', c=colors[label], marker='<', lw=0.5, ms=12,
                     **kwargs)
+        else:
+            raise(ValueError("xl has got wrong lenght"))
     customize_metric_plot(ax, xl)
 
 
@@ -567,6 +576,7 @@ def get_scores(directory, labels, l=3, verbose=False):
                 if verbose:
                     print(l)
             except:
+                print(sys.exc_info()[1])
                 print("Skipping level ", l)
     if len(labels) >= 2:
         h = np.array(scores[labels[0]]['h'])
@@ -651,14 +661,14 @@ def plot_sizes(level, directory, algorithm, ax=None):
     plt.show()
 
 
-def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
-    df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory, algorithm, algorithm, l), header=[0])
+def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
+    df_clusters = pd.read_csv("%s/%s/%s_level_%d_clusters.csv" % (directory, algorithm, algorithm, l_max), header=[0])
     if df_clusters is None:
         print("files not found")
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
     for normalise in [True, False]:
         for label in labels:
-            for level in np.arange(l + 1)[::-1]:
+            for level in np.arange(l_max + 1)[::-1]:
                 print(normalise, label, level)
                 try:
                     cluster = get_cluster_given_l(level, directory, algorithm=algorithm)
@@ -704,7 +714,7 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
     ##define scores
     scores = get_scores(directory, labels)
     try:
-        xl = getclustersizesarray(directory, l)
+        xl = getclustersizesarray(directory, l_max)
         with open("%s/clustersizes.txt" % directory, 'w') as f:
             for x in xl:
                 f.write("%d\n" % x)
@@ -712,7 +722,7 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
         print("cannot save clustersizes.txt")
 
     try:
-        xl = gettopicsizesarray(directory, l)
+        xl = gettopicsizesarray(directory, l_max)
         with open("%s/topicsizes.txt" % directory, 'w') as f:
             for x in xl:
                 f.write("%d\n" % x)
@@ -720,13 +730,13 @@ def clusteranalysis(directory, labels, l=3, algorithm='topsbm'):
         print("cannot save topicsizes.txt")
 
     # save files for R analisys
-    for l in np.arange(l + 1):
-        pd.DataFrame(data=define_labels(get_cluster_given_l(l, directory), df_files, label=labels[0])[1],
-                     columns=['l%d' % l]).to_csv("%s/%s/%s_level_%d_labels.csv" % (directory, algorithm, algorithm, l),
-                                                 header=True,
-                                                 index=False)
+    for l_max in np.arange(l_max + 1):
+        pd.DataFrame(data=define_labels(get_cluster_given_l(l_max, directory), df_files, label=labels[0])[1],
+                     columns=['l%d' % l_max]).to_csv("%s/%s/%s_level_%d_labels.csv" % (directory, algorithm, algorithm, l_max),
+                                                     header=True,
+                                                     index=False)
 
 
 def get_max_available_L(directory, algorithm='topsbm'):
-    return np.array([el.split("_")[2] for el in os.listdir("%s%s" % (directory, algorithm)) if "level_" in el],
+    return np.array([el.split("_")[2] for el in os.listdir("%s/%s" % (directory, algorithm)) if "level_" in el],
                     dtype=int).max()
