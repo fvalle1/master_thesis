@@ -78,7 +78,7 @@ def plot_cluster_composition(fraction_sites, directory, level, normalise=False, 
         ax.set_ylabel("number of nodes", fontsize=20)
     ax.set_title("%s%s distribution across clusters" % ("Shuffled " if shuffled else '', label), fontsize=20)
     ax.legend(ncol=3, loc='upper right')
-    ax.set_xticks(x)
+
     ax.tick_params(axis='both', labelsize=20)
     plt.show()
     fig.savefig("%s/%s/%s%sclustercomposition_l%d_%s.pdf" % (
@@ -173,6 +173,7 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                     c_fraction_site['unknown'] = 1
                     fraction_sites['unknown']=[]
                 print("error in %s" % sample)
+                print(*sys.exc_info())
         for site in fraction_sites:
             if normalise:
                 norm = float(len(cluster[i]))
@@ -418,9 +419,9 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8,
 
 def customize_metric_plot(ax, xl):
     ax.set_xlabel("number of clusters", fontsize=20)
-    ax.set_ylabel("V-measure score", fontsize=20)
+    ax.set_ylabel("NMI score", fontsize=20)
     ax.set_ylim((0, 1.1))
-    ax.set_xlim(np.min(xl), np.max(xl))
+    ax.set_xlim(1, np.max(xl)*1.1)
     ax.set_xscale('log')
     ax.legend(loc='best', fontsize=20)
 
@@ -586,6 +587,11 @@ def get_scores(directory, labels, l=3, verbose=False):
             'c': c,
             'V': 2 * h * c / (h + c)
         }
+    return scores
+
+def get_scores_shuffled(directory, df_files, l=3, algorithm='topsbm', label='primary_site', scores=None, verbose=False):
+    if scores is None:
+        scores={}
     scores['shuffle'] = {
         'h': [],
         'c': [],
@@ -596,18 +602,19 @@ def get_scores(directory, labels, l=3, verbose=False):
             try:
                 if verbose:
                     print(l)
-                clusters = get_cluster_given_l(l, directory)
+                clusters = get_cluster_given_l(l, directory, algorithm=algorithm)
             except:
                 print("Skipping shuffled level ", l)
                 continue
-            _, predicted_labels = define_labels(clusters, df_files, label='primary_site')
+            _, predicted_labels = define_labels(clusters, df_files, label=label)
             true_labels, _ = define_labels(clusters,
-                                           pd.read_csv("%s/files.dat.shuf" % directory, index_col=[0]),
-                                           label='primary_site')
+                                           pd.read_csv("%s/files_shuffles.dat" % directory, index_col=[0]),
+                                           label=label)
             scores['shuffle']['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
             scores['shuffle']['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
             scores['shuffle']['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
     except:
+        print(*sys.exc_info())
         print("shuffled files not found")
     return scores
 
@@ -693,7 +700,7 @@ def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
                     print(sys.exc_info()[0])
                 try:
                     fraction_sites_shuffle = get_fraction_sites(cluster,
-                                                                pd.read_csv("%s/files.dat.shuf" % directory,
+                                                                pd.read_csv("%s/files_shuffles.dat" % directory,
                                                                             index_col=[0]),
                                                                 label=label, normalise=normalise)
                     clustersinfo_shuffle = get_clustersinfo(cluster, fraction_sites_shuffle)
@@ -710,6 +717,7 @@ def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
                                          algorithm=algorithm)
                 except:
                     print("must shuffle files")
+                    print(*sys.exc_info())
 
     ##define scores
     scores = get_scores(directory, labels)

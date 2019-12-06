@@ -1,5 +1,6 @@
 import os
 import sys
+import gc
 from typing import List, Any, Union
 
 import numpy as np
@@ -33,17 +34,17 @@ class lda(LatentDirichletAllocation):
         if self.verbose > 1:
             print("model created")
 
-    def __get_true_out(self, df, df_files):
+    def __get_true_out(self, df, df_files, label):
         true_out = []
         for sample in df.columns.values:
             try:
-                true_out.append(get_file(sample, df_files)['primary_site'])
+                true_out.append(get_file(sample, df_files)[label])
             except:
                 print(sys.exc_info()[1])
                 true_out.append('')
         return true_out
 
-    def full_analysis(self, directory, xl, tl=None, **kwargs) -> None:
+    def full_analysis(self, directory, xl, tl=None, label='primary_site', **kwargs) -> None:
         """
 
         :param df:
@@ -52,6 +53,7 @@ class lda(LatentDirichletAllocation):
         :param tl:
         :param kwargs: argouments to LatentDirichletAllocation().fit_transform
         """
+        gc.collect()#free as much memory as possible
         scores = {}
         sigmas = []
         scores['lda'] = {
@@ -61,13 +63,14 @@ class lda(LatentDirichletAllocation):
         }
         if tl is None:
             tl = xl
-        df = pd.read_csv("%s/mainTable_all.csv" % directory, index_col=[0], header=[0]).dropna().astype(int)
+        df = pd.read_csv("%s/mainTable.csv" % directory, index_col=[0], header=[0]).astype(int)
+        df.dropna(inplace=True)
         if self.verbose > 1:
             print(df.info())
         df_files = pd.read_csv("files.dat", index_col=[0])
         if self.verbose > 1:
             print(df_files.info())
-        true_out=self.__get_true_out(df, df_files)
+        true_out=self.__get_true_out(df, df_files, label)
 
         if self.verbose > 1:
             print(df_files.info())
@@ -97,19 +100,23 @@ class lda(LatentDirichletAllocation):
             df_topic_distr.to_csv("lda/lda_level_%d_topic-dist.csv" % l, index=False, header=True)
             del df_topic_distr
 
-            # save topics
-            data = tf.convert_to_tensor(df_word_distr.transpose())
-            KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data), elems=data)
-            KL_tensor_min = tf.map_fn(distinctivness, tf.transpose(KL_tensor, perm=[2, 0, 1]))
-            with tf.Session() as sess:
-                out = sess.run(KL_tensor_min)
-            df_D = pd.DataFrame(data=out, index=df_word_distr.index, columns=df_word_distr.columns)
-            df_topics = pd.DataFrame(columns=df_D.columns, index=np.arange(len(df_D.index)))
-            for topic in df_D.columns:
-                df_topics[topic] = df_D[topic].sort_values(ascending=False).index
-            df_topics.loc[:15, :].to_csv("%s/lda/lda_level_%d_topics.csv" % (directory, l), index=False)
+            try:
+                # save topics
+                data = tf.convert_to_tensor(df_word_distr.transpose())
+                KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data), elems=data)
+                KL_tensor_min = tf.map_fn(distinctivness, tf.transpose(KL_tensor, perm=[2, 0, 1]))
+                with tf.Session() as sess:
+                    out = sess.run(KL_tensor_min)
+                df_D = pd.DataFrame(data=out, index=df_word_distr.index, columns=df_word_distr.columns)
+                df_topics = pd.DataFrame(columns=df_D.columns, index=np.arange(len(df_D.index)))
+                for topic in df_D.columns:
+                    df_topics[topic] = df_D[topic].sort_values(ascending=False).index
+                df_topics.loc[:20, :].to_csv("%s/lda/lda_level_%d_topics.csv" % (directory, l), index=False)
 
-            tf.reset_default_graph()
+                tf.reset_default_graph()
+            except:
+                print(*sys.exc_info())
+                tf.reset_default_graph()
 
             # save clusters
             print("saving clusters")
@@ -134,6 +141,10 @@ class lda(LatentDirichletAllocation):
 
             # save dl
             sigmas.append(-self.score(X=df.values.T))
+
+            del out
+            del data
+            del df_clusters
 
         pd.DataFrame(data=scores['lda']).to_csv("%s/lda.scores" % directory, header=True, index=False)
 
