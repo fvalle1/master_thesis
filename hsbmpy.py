@@ -118,7 +118,7 @@ def get_Palette(site):
                         'Adipose Tissue': 'YlOrBr',
                         'Blood': 'RdPu',
                         'Pancreas': 'OrRd',
-                        'testis': 'GnBu'})
+                        'Testis': 'GnBu'})
     for k in palette_map.keys():
         if k in site:
             return palette_map[k]
@@ -179,12 +179,12 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                 norm = float(len(cluster[i]))
             else:
                 norm = 1
-            if norm!=0:
+            if norm > 0:
                 fraction_sites[site].append(c_fraction_site[site] / norm)
             else:
-                fraction_sites[site].append(0)
+                fraction_sites[site].append(np.nan)
             c_fraction_site[site] = 0
-    df = pd.DataFrame(data=fraction_sites)
+    df = pd.DataFrame(data=fraction_sites).dropna(how='all', axis=0)
     ##put first columns that have high values in average
     avgs = df.apply(lambda x: np.average(x.to_numpy()[x.to_numpy().nonzero()[0]]), axis=0)
     df = df.transpose()
@@ -372,13 +372,15 @@ def define_labels(cluster, df_files, label='primary_site', verbose=False):
                 true_labels.append(get_file(sample, df_files)[label])
                 predicted_labels.append(c)
             except:
-                print(sys.exc_info()[0])
+                true_labels.append('')
+                predicted_labels.append('')
+                print(*sys.exc_info())
                 print("error searching %s in %s" % (label, sample))
     _, true_labels = np.unique(true_labels, return_inverse=True)
     return true_labels, predicted_labels
 
 
-def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8, **kwargs):
+def add_score_lines(ax, scores, labels=None, h=False, c=False, alpha=0.8, **kwargs):
     '''
     add to ax lines in scores
     add homogeneity and completness if required by h and c
@@ -388,21 +390,27 @@ def add_score_lines(ax, scores, labels=None, xl=[], h=False, c=False, alpha=0.8,
         'hsbm': 'blue',
         'secondary_site': 'red',
         'status': 'red',
-        'hSBM': 'green',
+        'hSBM': 'blue',
         'mixed': 'green',
         'hierhsbm': 'purple',
         'hsbm->hierachical': 'purple',
         'disease_type': 'red',
         'shuffle': 'orange',
+        'tm': 'darkcyan',
+        'cc': 'darkred',
         'disease_tissue': 'purple',
-        'hierarchical': 'darkcyan',
+        'hierarchical': 'darkgreen',
         'lda': 'violet',
         'RPPA Clusters': 'red'
     }
 
     for label in labels:
+        if label not in scores.keys():
+            print("No score for %s"%label)
+            continue
         if label not in colors.keys():
             colors[label]='darkblue'
+        xl = scores[label]['xl']
         if h:
             ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], marker='x', lw=0.5, ms=12, alpha=alpha,
                     label='homogeneity - %s' % label)
@@ -557,28 +565,34 @@ def add_tumor_location(df_files):
         df_files.at[sample, 'disease_tissue'] = '%s[%s]' % (row['primary_site'], row['disease_type'])
 
 
-def get_scores(directory, labels, l=3, verbose=False):
-    df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
+def get_scores(directory, labels, algorithm='topsbm', df_files=None, verbose=False):
+    if df_files is None:
+        df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
     if df_files.columns.isin(['disease_type']).any():
         add_tumor_location(df_files)
     scores = {}
     for label in labels:
+        xl = []
         scores[label] = {
             'h': [],
             'c': [],
-            'V': []
+            'V': [],
+            'xl':[]
         }
+        l = get_max_available_L(directory, algorithm)
         for l in np.arange(l + 1):
             try:
-                true_labels, predicted_labels = define_labels(get_cluster_given_l(l, directory), df_files, label=label)
+                true_labels, predicted_labels = define_labels(get_cluster_given_l(l, directory, algorithm), df_files, label=label)
                 scores[label]['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
                 scores[label]['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
                 scores[label]['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
+                xl.append(len(np.unique(predicted_labels)))
                 if verbose:
                     print(l)
             except:
-                print(sys.exc_info()[1])
+                print(*sys.exc_info())
                 print("Skipping level ", l)
+        scores[label]['xl'] = xl
     if len(labels) >= 2:
         h = np.array(scores[labels[0]]['h'])
         c = np.array(scores[labels[1]]['c'])
@@ -589,14 +603,17 @@ def get_scores(directory, labels, l=3, verbose=False):
         }
     return scores
 
-def get_scores_shuffled(directory, df_files, l=3, algorithm='topsbm', label='primary_site', scores=None, verbose=False):
-    if scores is None:
-        scores={}
-    scores['shuffle'] = {
+def get_scores_shuffled(directory, df_files, algorithm='topsbm', label='primary_site', verbose=False):
+    scores = {
         'h': [],
         'c': [],
-        'V': []
+        'V': [],
+        'xl':[]
     }
+    xl = []
+    l = get_max_available_L(directory, algorithm)
+    df_files_shuffled = df_files.copy()
+    np.random.shuffle(df_files_shuffled[label])
     try:
         for l in np.arange(0, l + 1):
             try:
@@ -608,14 +625,16 @@ def get_scores_shuffled(directory, df_files, l=3, algorithm='topsbm', label='pri
                 continue
             _, predicted_labels = define_labels(clusters, df_files, label=label)
             true_labels, _ = define_labels(clusters,
-                                           pd.read_csv("%s/files_shuffles.dat" % directory, index_col=[0]),
+                                           df_files_shuffled,
                                            label=label)
-            scores['shuffle']['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
-            scores['shuffle']['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
-            scores['shuffle']['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
+            scores['h'].append(metrics.cluster.homogeneity_score(true_labels, predicted_labels))
+            scores['c'].append(metrics.cluster.completeness_score(true_labels, predicted_labels))
+            scores['V'].append(metrics.cluster.v_measure_score(true_labels, predicted_labels))
+            xl.append(len(np.unique(predicted_labels)))
     except:
         print(*sys.exc_info())
         print("shuffled files not found")
+    scores['xl'] = xl
     return scores
 
 
@@ -673,6 +692,8 @@ def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
     if df_clusters is None:
         print("files not found")
     df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0])
+    df_files_shuffled = df_files.copy()
+    df_files_shuffled.apply(lambda x: np.random.shuffle(x), 0)
     for normalise in [True, False]:
         for label in labels:
             for level in np.arange(l_max + 1)[::-1]:
@@ -700,8 +721,7 @@ def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
                     print(sys.exc_info()[0])
                 try:
                     fraction_sites_shuffle = get_fraction_sites(cluster,
-                                                                pd.read_csv("%s/files_shuffles.dat" % directory,
-                                                                            index_col=[0]),
+                                                                df_files_shuffled,
                                                                 label=label, normalise=normalise)
                     clustersinfo_shuffle = get_clustersinfo(cluster, fraction_sites_shuffle)
                     plot_cluster_composition(fraction_sites_shuffle, directory, level, normalise=normalise, label=label,
@@ -748,3 +768,13 @@ def clusteranalysis(directory, labels, l_max=3, algorithm='topsbm'):
 def get_max_available_L(directory, algorithm='topsbm'):
     return np.array([el.split("_")[2] for el in os.listdir("%s/%s" % (directory, algorithm)) if "level_" in el],
                     dtype=int).max()
+
+def out_to_file(out, index, name='new_method', l=0):
+    print("saving clusters")
+    df_clusters = pd.DataFrame(index=np.arange(len(index)))
+    for c in np.arange(out.max()+1)[::-1]:
+        c_objects = index[np.argwhere(out == c)].values.T[0]
+        df_clusters.insert(0, "Cluster %d" % (c + 1),
+                           np.concatenate((c_objects, [np.nan for _ in np.arange(len(index) - len(c_objects))])))
+    df_clusters.dropna(axis=0, how='all', inplace=True)
+    df_clusters.to_csv("%s_level_%d_clusters.csv"%(name, l), index=False, header=True)
