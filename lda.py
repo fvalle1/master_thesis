@@ -7,7 +7,6 @@ import numpy as np
 from sklearn.decomposition import LatentDirichletAllocation
 import pandas as pd
 import tensorflow as tf
-from sklearn.metrics import homogeneity_completeness_v_measure
 from hsbmpy import get_file
 
 
@@ -53,7 +52,7 @@ class lda(LatentDirichletAllocation):
         :param tl:
         :param kwargs: argouments to LatentDirichletAllocation().fit_transform
         """
-        gc.collect()#free as much memory as possible
+        gc.collect()  # free as much memory as possible
         scores = {}
         sigmas = []
         scores['lda'] = {
@@ -70,11 +69,11 @@ class lda(LatentDirichletAllocation):
         df_files = pd.read_csv("files.dat", index_col=[0])
         if self.verbose > 1:
             print(df_files.info())
-        true_out=self.__get_true_out(df, df_files, label)
+        true_out = self.__get_true_out(df, df_files, label)
 
         if self.verbose > 1:
             print(df_files.info())
-        totalobjcets = len(df.columns)
+        total_objects = len(df.columns)
         print("lda")
         os.system('mkdir -p lda')
         for l, x in enumerate(xl):
@@ -103,7 +102,8 @@ class lda(LatentDirichletAllocation):
             try:
                 # save topics
                 data = tf.convert_to_tensor(df_word_distr.transpose())
-                KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data), elems=data)
+                KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data),
+                                      elems=data)
                 KL_tensor_min = tf.map_fn(distinctivness, tf.transpose(KL_tensor, perm=[2, 0, 1]))
                 with tf.Session() as sess:
                     out = sess.run(KL_tensor_min)
@@ -113,14 +113,13 @@ class lda(LatentDirichletAllocation):
                     df_topics[topic] = df_D[topic].sort_values(ascending=False).index
                 df_topics.loc[:20, :].to_csv("%s/lda/lda_level_%d_topics.csv" % (directory, l), index=False)
 
-                tf.reset_default_graph()
             except:
+                data = -1
                 print(*sys.exc_info())
-                tf.reset_default_graph()
 
             # save clusters
             print("saving clusters")
-            df_clusters = pd.DataFrame(index=np.arange(totalobjcets))
+            df_clusters = pd.DataFrame(index=np.arange(total_objects))
             # cluster = AgglomerativeClustering(n_clusters=x, affinity='euclidean', linkage='ward')
             # out = cluster.fit_predict(topics)
             out = np.argmax(topics, axis=1)
@@ -128,25 +127,18 @@ class lda(LatentDirichletAllocation):
             for c in np.arange(out.max() + 1)[::-1]:
                 c_objects = df.columns[np.argwhere(out == c)].values.T[0]
                 df_clusters.insert(0, "Cluster %d" % (c + 1), np.concatenate(
-                    (c_objects, [np.nan for _ in np.arange(totalobjcets - len(c_objects))])))
+                    (c_objects, [np.nan for _ in np.arange(total_objects - len(c_objects))])))
             df_clusters.dropna(axis=0, how='all', inplace=True)
             df_clusters.to_csv("lda/lda_level_%d_clusters.csv" % (l), index=False, header=True)
 
             # metrics
             print("saving metrics")
-            score = (homogeneity_completeness_v_measure(true_out, out))
-            scores['lda']['h'].append(score[0])
-            scores['lda']['c'].append(score[1])
-            scores['lda']['V'].append(score[2])
-
             # save dl
             sigmas.append(-self.score(X=df.values.T))
 
             del out
             del data
             del df_clusters
-
-        pd.DataFrame(data=scores['lda']).to_csv("%s/lda.scores" % directory, header=True, index=False)
 
 
 if __name__ == '__main__':
