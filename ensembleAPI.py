@@ -2,23 +2,6 @@ import mygene
 
 mg = mygene.MyGeneInfo()
 
-cases_endpt = 'https://api.gdc.cancer.gov/cases'
-
-fields = [
-    "submitter_id",
-    "case_id",
-    "primary_site",
-    "disease_type",
-    "diagnoses.tumor_stage",
-    "diagnoses.tumor_grade",
-    "diagnoses.primary_diagnosis",
-    "diagnoses.classification_of_tumor",
-    "annotations.classification",
-    "samples.tumor_code"
-    ]
-
-fields = ','.join(fields)
-
 def geneinfo(genename):
     """Query ensemble for a ENSG gene
 

@@ -33,16 +33,6 @@ class lda(LatentDirichletAllocation):
         if self.verbose > 1:
             print("model created")
 
-    def __get_true_out(self, df, df_files, label):
-        true_out = []
-        for sample in df.columns.values:
-            try:
-                true_out.append(get_file(sample, df_files)[label])
-            except:
-                print(sys.exc_info()[1])
-                true_out.append('')
-        return true_out
-
     def full_analysis(self, directory, xl, tl=None, label='primary_site', **kwargs) -> None:
         """
 
@@ -67,10 +57,9 @@ class lda(LatentDirichletAllocation):
         if self.verbose > 1:
             print(df.info())
         df_files = pd.read_csv("files.dat", index_col=[0])
+        df_files = df_files[~df_files.index.isna()]
         if self.verbose > 1:
             print(df_files.info())
-        true_out = self.__get_true_out(df, df_files, label)
-
         if self.verbose > 1:
             print(df_files.info())
         total_objects = len(df.columns)
@@ -101,7 +90,7 @@ class lda(LatentDirichletAllocation):
 
             try:
                 # save topics
-                data = tf.convert_to_tensor(df_word_distr.transpose())
+                data = tf.convert_to_tensor(df_word_distr.transpose().values)
                 KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data),
                                       elems=data)
                 KL_tensor_min = tf.map_fn(distinctivness, tf.transpose(KL_tensor, perm=[2, 0, 1]))
