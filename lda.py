@@ -101,12 +101,11 @@ class lda(LatentDirichletAllocation):
 
             try:
                 # save topics
-                data = tf.convert_to_tensor(df_word_distr.transpose())
+                data = tf.convert_to_tensor(df_word_distr.transpose().values)
                 KL_tensor = tf.map_fn(fn=lambda k: tf.map_fn(fn=lambda l: kullbach_liebler(k, l), elems=data),
                                       elems=data)
                 KL_tensor_min = tf.map_fn(distinctivness, tf.transpose(KL_tensor, perm=[2, 0, 1]))
-                with tf.Session() as sess:
-                    out = sess.run(KL_tensor_min)
+                out = KL_tensor_min.numpy()
                 df_D = pd.DataFrame(data=out, index=df_word_distr.index, columns=df_word_distr.columns)
                 df_topics = pd.DataFrame(columns=df_D.columns, index=np.arange(len(df_D.index)))
                 for topic in df_D.columns:

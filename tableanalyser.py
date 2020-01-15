@@ -119,14 +119,14 @@ def discretize_df_columns(df):
         qdf.insert(0,s.name,s.values.round(0))
     return qdf
 
-df_symbols= pd.read_csv("gene_symbol.txt", index_col=[0])
+df_symbols= pd.read_csv("https://www.genenames.org/cgi-bin/download/custom?col=gd_hgnc_id&col=gd_app_sym&col=gd_pub_ensembl_id&col=md_ensembl_id&col=md_eg_id&status=Approved&status=Entry%20Withdrawn&hgnc_dbtag=on&order_by=gd_app_sym_sort&format=text&submit=submit", index_col=[0], sep='\t')
 
 def get_symbol(ensg):
     '''
     convert ensg to symbol
     '''
-    if ensg in df_symbols.index.values:
-        return df_symbols.at[ensg,'Description']
+    if ensg[:15] in df_symbols['Ensembl gene ID'].values:
+        return df_symbols[df_symbols['Ensembl gene ID']==ensg[:15]]['Approved symbol'].values[0]
     else:
         return ''
 
@@ -134,8 +134,8 @@ def get_ensg(description):
     '''
     convert descr to ensg
     '''
-    if description in df_symbols['Description'].values:
-        return df_symbols[df_symbols['Description']==description].index[0]
+    if description in df_symbols['Approved symbol'].values:
+        return df_symbols[df_symbols['Approved symbol']==description]['Ensembl gene ID']
     else:
         return ''
 
