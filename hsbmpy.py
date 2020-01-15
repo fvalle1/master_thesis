@@ -165,7 +165,8 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
                 for fullsample in df_files.index.values:
                     if sample in fullsample:
                         foundsample = df_files.loc[fullsample, :]
-                c_fraction_site[foundsample[label]] += 1
+                        c_fraction_site[foundsample[label]] += 1
+                        continue
             except:
                 if 'unknown' in c_fraction_site.keys():
                     c_fraction_site['unknown'] +=1
@@ -406,7 +407,7 @@ def add_score_lines(ax, scores, labels=None, h=False, c=False, alpha=0.8, **kwar
 
     for label in labels:
         if label not in scores.keys():
-            print("no data for %s"%label)
+            print("No score for %s"%label)
             continue
         if label not in colors.keys():
             colors[label]='darkblue'
@@ -565,9 +566,9 @@ def add_tumor_location(df_files):
         df_files.at[sample, 'disease_tissue'] = '%s[%s]' % (row['primary_site'], row['disease_type'])
 
 
-def get_scores(directory, labels, df_files = None, algorithm='topsbm', verbose=False):
+def get_scores(directory, labels, df_files=None, algorithm='topsbm', verbose=False):
     if df_files is None:
-        df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0]).dropna(axis=1, how='all').dropna(axis=0, how='all')
+        df_files = pd.read_csv("%s/files.dat" % directory, index_col=[0], header=[0]).dropna(how='all', axis=0)
     if df_files.columns.isin(['disease_type']).any():
         add_tumor_location(df_files)
     scores = {}
