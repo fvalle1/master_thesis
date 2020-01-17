@@ -1,6 +1,6 @@
 FROM continuumio/anaconda3:2019.07
 
-MAINTAINER Filippo Valle filippo.valle@edu.unito.it
+LABEL maintainer='Filippo Valle filippo.valle@edu.unito.it'
 
 USER root
 
