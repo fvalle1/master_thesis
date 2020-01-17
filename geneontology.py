@@ -52,6 +52,7 @@ def get_ontology_df(topic, cutoff=0.05, threshhold=5e-1, gene_sets = ['GO_Molecu
     sets = ','.join(gene_sets)
     if background is None:
         background='hsapiens_gene_ensembl'
+    topic = [g for g in topic if str(g)!='nan']
     gene_ontology = gs.enrichr(list(topic), gene_sets=sets, cutoff=cutoff, background=background).results
     return gene_ontology[gene_ontology['Adjusted P-value'] < threshhold][['Term', 'Adjusted P-value', 'Gene_set']]
 
