@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-MAINTAINER Filippo Valle <filippo.valle@edu.unito.it>
+LABEL maintainer='Filippo Valle <filippo.valle@edu.unito.it>'
 
 RUN apt-get update
 RUN apt-get install sudo apt-utils --yes
