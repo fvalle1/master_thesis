@@ -165,18 +165,19 @@ def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
     if ax is None:
         fig=plt.figure(figsize=(15,8))
         ax=fig.subplots()
-    ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='Taylor')
-    ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='Poisson')
+    ax.plot(x_lin[x_lin>=1],[1 for _ in x_lin[x_lin>=1]], 'g-', lw=3.5, label='Taylor')
+    ax.plot(x_lin[x_lin<=1],1./x_lin[x_lin<=1], 'r-', lw=3.5, label='Poisson')
 
     #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
-    ax.set_ylabel("$cv^2$", fontsize=20)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=24)
+    ax.set_ylabel("$cv^2$", fontsize=24)
     ax.set_xscale('log')
     ax.set_yscale('log')
+    ax.tick_params(labelsize=20)
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=20)
+    ax.legend(fontsize=24)
     plt.show()
 
 
