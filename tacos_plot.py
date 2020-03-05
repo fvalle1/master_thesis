@@ -2,11 +2,13 @@ import numpy as np
 from scipy.interpolate import interpn
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 
 def scatterdense(x, y, ax=None, nbins=80, **kwargs):
-    xmin = np.log10(1e-3)
+    xmin = np.log10(min(x[x>0]))
     xmax = np.log10(x.max())
-    ymin = np.log10(1e-6)
+    ymin = np.log10(min(y[y>0]))
     ymax = np.log10(y.max())
 
     xbins = np.logspace(xmin, xmax, nbins) # <- make a range from 10**xmin to 10**xmax
@@ -20,4 +22,4 @@ def scatterdense(x, y, ax=None, nbins=80, **kwargs):
     if ax is None:
         fig=plt.figure()
         ax=fig.subplots()
-    ax.scatter(x, y, c=z, **kwargs)
+    cax = ax.scatter(x, y, c=z, **kwargs)
