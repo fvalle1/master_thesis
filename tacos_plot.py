@@ -3,9 +3,11 @@ from scipy.interpolate import interpn
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.colors import Normalize
 
 
-def scatterdense(x, y, ax=None, nbins=80, **kwargs):
+
+def scatterdense(x, y, ax=None, nbins=80, colorbar=False, c_title="density", **kwargs):
     xmin = np.log10(min(x[x>0]))
     xmax = np.log10(x.max())
     ymin = np.log10(min(y[y>0]))
@@ -22,4 +24,7 @@ def scatterdense(x, y, ax=None, nbins=80, **kwargs):
     if ax is None:
         fig=plt.figure()
         ax=fig.subplots()
-    cax = ax.scatter(x, y, c=z, **kwargs)
+    ax.scatter(x, y, c=z, **kwargs)
+    if colorbar:
+        cbar = ax.get_figure().colorbar(cm.ScalarMappable(norm=Normalize(vmin=1, vmax=max(z)), cmap="viridis"), ax=ax)
+        cbar.ax.set_ylabel(c_title)

@@ -139,7 +139,7 @@ def get_ensg(description):
     else:
         return ''
 
-def plotvarmen(means, variances, ax = None, normalisation_str = "counts", **kwargs):
+def plotvarmen(means, variances, ax = None, normalisation_str = "counts", colorbar=False, **kwargs):
     x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
     if ax is None:
         fig=plt.figure(figsize=(15,8))
@@ -147,7 +147,7 @@ def plotvarmen(means, variances, ax = None, normalisation_str = "counts", **kwar
     ax.plot(x_lin[x_lin<=1.5],x_lin[x_lin<=1.5], 'r--', lw=5, label="$m_g$ (Poisson)")
     ax.plot(x_lin[x_lin>=0.5],np.power(x_lin[x_lin>=0.5],2), 'b--', lw=5, label="$m_g^2$ (Taylor)")
 
-    scatterdense(means, variances, ax=ax, label='data', **kwargs)
+    scatterdense(means, variances, ax=ax, label='data', colorbar=colorbar, c_title="Number of genes", **kwargs)
 
     ax.set_xlabel("Mean expression level, $m_g$", fontsize=22)
     ax.set_ylabel("Variance of expression level, $v_g$", fontsize=22)
@@ -157,10 +157,10 @@ def plotvarmen(means, variances, ax = None, normalisation_str = "counts", **kwar
     ax.set_ylim((np.nanmin(variances[variances.nonzero()])/10,np.power(10,np.log10(np.nanmax(variances))+1)))
     ax.legend(fontsize=20)
 
-def plotcv2mean(means, variances, ax=None, normalisation_str = "counts", **kwargs):
+def plotcv2mean(means, variances, ax=None, normalisation_str = "counts", colorbar=False, **kwargs):
     x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
     cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
-    scatterdense(means[means.nonzero()], cv2,ax=ax, label="data", **kwargs)
+    scatterdense(means[means.nonzero()], cv2,ax=ax, label="data", colorbar=colorbar, c_title="Number of genes", **kwargs)
     if ax is None:
         fig=plt.figure(figsize=(15,8))
         ax=fig.subplots()
