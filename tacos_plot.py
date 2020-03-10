@@ -9,9 +9,9 @@ from matplotlib.colors import Normalize
 
 def scatterdense(x, y, ax=None, nbins=80, colorbar=False, c_title="density", **kwargs):
     xmin = np.log10(min(x[x>0]))
-    xmax = np.log10(x.max())
+    xmax = np.log10(max(x))
     ymin = np.log10(min(y[y>0]))
-    ymax = np.log10(y.max())
+    ymax = np.log10(max(y))
 
     xbins = np.logspace(xmin, xmax, nbins) # <- make a range from 10**xmin to 10**xmax
     ybins = np.logspace(ymin, ymax, nbins) # <- make a range from 10**ymin to 10**ymax
