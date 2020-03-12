@@ -27,4 +27,4 @@ def scatterdense(x, y, ax=None, nbins=80, colorbar=False, c_title="density", **k
     ax.scatter(x, y, c=z, **kwargs)
     if colorbar:
         cbar = ax.get_figure().colorbar(cm.ScalarMappable(norm=Normalize(vmin=1, vmax=max(z)), cmap="viridis"), ax=ax)
-        cbar.ax.set_ylabel(c_title)
+        cbar.ax.set_ylabel(c_title, fontsize=35)
