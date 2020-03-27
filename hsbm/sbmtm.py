@@ -121,6 +121,7 @@ class sbmtm():
         """
         # make a graph
         g = gt.Graph(directed=False)
+
         ## define node properties
         ## name: docs - title, words - 'word'
         ## kind: docs - 0, words - 1
@@ -616,7 +617,10 @@ class sbmtm():
             z1, z2 = state_l_edges[e]
             v1 = e.source()
             v2 = e.target()
-            weight = g.ep["count"][e]
+            if 'count' in g.ep.keys():
+                weight = g.ep["count"][e]
+            else:
+                weight = 1
             n_db[int(v1), z1] += weight
             n_dbw[int(v1), z2] += weight
             n_wb[int(v2) - D, z2] += weight
@@ -705,6 +709,13 @@ class sbmtm():
             return n_td_tw / np.sum(n_td_tw)
         else:
             return n_td_tw
+
+    def get_adjacency_df(self):
+        df_hsbm = pd.DataFrame(index=self.words, columns=self.documents).fillna(0)
+        for e, count in zip(self.g.get_edges(), self.g.properties[('e', 'count')].get_array()):
+            df_hsbm.at[df_hsbm.index[e[1] - len(self.documents)], df_hsbm.columns[e[0]]] = count
+        return df_hsbm
+
 
     def plot_topic_dist(self, l):
         groups = self.groups[l]

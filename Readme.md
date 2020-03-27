@@ -12,25 +12,26 @@ tacos.tacos.shuffleLabels()
 ```
 
 ### Make bipartite network
-```bash
-python addo.py
-```
 ```python
-import tacos
-tacos.makegraph()
+from sbmtm import sbmtm
+model = sbmtm()
+model.make_graph_from_BoW(df)
+model.save_graph("graph.xml.gz")
 ```
 
 ## Run stochastic block model
 ### interactively
 ```
-docker run -it -p8888:8888 -v $(PWD):/home/user/ fvalle01/hsbm bash
-jupyter notebook --ip0.0.0.0 --allow-root
+docker run -it -p8888:8888 -v $(PWD):/home/filippo/files --entrypoint /bin/bash fvalle01/hsbm 2
+jupyter notebook --ip0.0.0.0
 ```
 
 ### as executable
 ```
-docker run -it -v $(PWD):/home/user/ fvalle01/hsbm:autorun
+docker run -it -v $(PWD):/home/filippo/files/ fvalle01/hsbm:standard 2
 ```
+
+Note there must be a *graph.xml.gz* file in current working directory
 
 ## TCGA
 ### TCGA get manifest

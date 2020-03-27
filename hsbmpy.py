@@ -161,20 +161,15 @@ def get_fraction_sites(cluster, df_files, label='primary_site', normalise=False)
 
     for i, c in enumerate(cluster):
         for sample in cluster[i]:
-            try:
-                for fullsample in df_files.index.values:
-                    if sample in fullsample:
-                        foundsample = df_files.loc[fullsample, :]
-                        c_fraction_site[foundsample[label]] += 1
-                        continue
-            except:
+            foundsample = get_file(sample, df_files)
+            if foundsample is not None:
+                c_fraction_site[foundsample[label]] += 1
+            else:
                 if 'unknown' in c_fraction_site.keys():
                     c_fraction_site['unknown'] +=1
                 else:
                     c_fraction_site['unknown'] = 1
                     fraction_sites['unknown']=[]
-                print("error in %s" % sample)
-                print(*sys.exc_info())
         for site in fraction_sites:
             if normalise:
                 norm = float(len(cluster[i]))
@@ -360,6 +355,7 @@ def get_file(sample, df_file):
     for fullsample in df_file.index.values:
         if sample in fullsample:
             return df_file.loc[fullsample, :]
+    return None
 
 
 def define_labels(cluster, df_files, label='primary_site', verbose=False):
@@ -402,7 +398,8 @@ def add_score_lines(ax, scores, labels=None, h=False, c=False, alpha=0.8, **kwar
         'disease_tissue': 'purple',
         'hierarchical': 'darkgreen',
         'lda': 'violet',
-        'RPPA Clusters': 'red'
+        'RPPA Clusters': 'red',
+        'wgcna': 'purple'
     }
 
     for label in labels:
@@ -413,13 +410,13 @@ def add_score_lines(ax, scores, labels=None, h=False, c=False, alpha=0.8, **kwar
             colors[label]='darkblue'
         xl = scores[label]['xl']
         if h:
-            ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], marker='x', lw=0.5, ms=12, alpha=alpha,
+            ax.plot(xl, scores[label]['h'], ls='-.', c=colors[label], marker='x', lw=0.5, ms=25, alpha=alpha,
                     label='homogeneity - %s' % label)
         if c:
-            ax.plot(xl, scores[label]['c'], ls=':', c=colors[label], marker='o', lw=0.5, ms=12, alpha=alpha,
+            ax.plot(xl, scores[label]['c'], ls=':', c=colors[label], marker='<', lw=0.5, ms=25, alpha=alpha,
                     label='completness - %s' % label)
         if len(scores[label]['V']) == len(xl):
-            ax.plot(xl, scores[label]['V'], label='%s' % label, ls='-', c=colors[label], marker='<', lw=0.5, ms=12,
+            ax.plot(xl, scores[label]['V'], label='%s' % label, ls='-', c=colors[label], marker='o', lw=0.5, ms=25,
                     **kwargs)
         else:
             raise(ValueError("xl has got wrong lenght"))
@@ -427,12 +424,12 @@ def add_score_lines(ax, scores, labels=None, h=False, c=False, alpha=0.8, **kwar
 
 
 def customize_metric_plot(ax, xl):
-    ax.set_xlabel("number of clusters", fontsize=20)
-    ax.set_ylabel("NMI score", fontsize=20)
+    ax.set_xlabel("Number of clusters", fontsize=22)
+    ax.set_ylabel("NMI score", fontsize=22)
     ax.set_ylim((0, 1.1))
     ax.set_xlim(1, np.max(xl)*1.1)
     ax.set_xscale('log')
-    ax.legend(loc='best', fontsize=20)
+    ax.legend(loc='best', fontsize=24)
 
 
 def plot_topic_size(directory, l, algorithm='topsbm'):

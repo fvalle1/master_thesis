@@ -31,7 +31,16 @@ import matplotlib.pyplot as plt
 from tableanalyser import get_symbol
 
 
-def get_ontology_df(topic, background=None, cutoff=0.05, threshhold=5e-1):
+def get_ontology_df(topic, cutoff=0.05, threshhold=5e-1, gene_sets = ['GO_Molecular_Function_2018',
+             'GO_Biological_Process_2018',
+             'GO_Cellular_Component_2018',
+             'Human_Phenotype_Ontology',
+             'GTEx_Tissue_Sample_Gene_Expression_Profiles_up',
+             'GTEx_Tissue_Sample_Gene_Expression_Profiles_down',
+             'Tissue_Protein_Expression_from_Human_Proteome_Map',
+             'KEGG_2019_Human',
+             'NCI-60_Cancer_Cell_Lines'
+            ], background=None):
     """
 
     :param topic: list of genes
@@ -40,10 +49,12 @@ def get_ontology_df(topic, background=None, cutoff=0.05, threshhold=5e-1):
     :param threshhold: threshold on Adjusted P-value
     :return:
     """
-    sets = 'GO_Molecular_Function_2018,GO_Biological_Process_2018,GO_Cellular_Component_2018,Human_Phenotype_Ontology,GTEx_Tissue_Sample_Gene_Expression_Profiles_up,GTEx_Tissue_Sample_Gene_Expression_Profiles_down,Tissue_Protein_Expression_from_Human_Proteome_Map,KEGG_2019_Human,NCI-60_Cancer_Cell_Lines'
-    gene_ontology = gs.enrichr(topic, gene_sets=sets, cutoff=cutoff).results
-    return gene_ontology[gene_ontology['Adjusted P-value'] < threshhold].loc[:,
-           ['Term', 'Adjusted P-value', 'Gene_set']]
+    sets = ','.join(gene_sets)
+    if background is None:
+        background='hsapiens_gene_ensembl'
+    topic = [g for g in topic if str(g)!='nan']
+    gene_ontology = gs.enrichr(list(topic), gene_sets=sets, cutoff=cutoff, background=background).results
+    return gene_ontology[gene_ontology['Adjusted P-value'] < threshhold][['Term', 'Adjusted P-value', 'Gene_set']]
 
 
 def ensg_to_symbol(series):
@@ -57,8 +68,9 @@ def ensg_to_symbol(series):
         try:
             symbols.append(get_symbol(g))
         except:
-            print(sys.exc_info()[1])
-    return symbols
+            print(*sys.exc_info())
+    symbols = np.array(symbols)
+    return symbols[[s!='nan' for s in symbols]]
 
 
 def save_plot_Pvalues(df_topics, l, directory, algorithm):

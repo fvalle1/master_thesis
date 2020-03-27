@@ -58,14 +58,14 @@ def genedistr(genedict, bins = 50, ax = None, density=False, label='', save=True
     width = float(maxfpkm) / bins
     _range = (0 - 0.5 * width, maxfpkm + 0.5 * width)
     if ax == None:
-        fig = plt.figure(figsize=(15, 5))
+        fig = plt.figure(figsize=(18, 15))
         ax = fig.subplots()
     else:
         fig=ax.get_figure()
     n, bin_edges, _ = ax.hist(genedict['data'], lw=1.5, density=density, histtype='step', range=_range, bins=bins, label=label)
-    ax.set_title(genedict['name'], fontsize=20)
-    ax.set_xlabel('%s'%metric, fontsize=20)
-    ax.set_ylabel('#', fontsize=20)
+    ax.set_title(genedict['name'], fontsize=35)
+    ax.set_xlabel('%s'%metric, fontsize=35)
+    ax.set_ylabel('#', fontsize=35)
     if logy:
         ax.set_yscale('log')
     if logx:
@@ -79,9 +79,9 @@ def geneplot(genedict, metric='fpkm'):
     """
     fig = plt.figure(figsize=(15, 5))
     plt.plot(genedict['data'], 'ob')
-    plt.title(genedict['name'], fontsize=20)
-    plt.xlabel("sample", fontsize=20)
-    plt.ylabel("%s"%metric, fontsize=20)
+    plt.title(genedict['name'], fontsize=35)
+    plt.xlabel("sample", fontsize=35)
+    plt.ylabel("%s"%metric, fontsize=35)
     plt.yscale('log')
     plt.ylim(ymin=1e-4)
     plt.show()
@@ -94,8 +94,8 @@ def genecoord(genedict, means, variances, metric='fpkm'):
     fig = plt.figure(figsize=(18,8))
     plt.scatter(means, variances)
     plt.scatter([np.average(genedict['data'])],[np.var(genedict['data'])], marker='x', c='r', s=90, label=genedict['name'])
-    plt.xlabel("$<%s>$"%metric, fontsize=20)
-    plt.ylabel("$\sigma^2_{%s}$"%metric, fontsize=20)
+    plt.xlabel("$<%s>$"%metric, fontsize=35)
+    plt.ylabel("$\sigma^2_{%s}$"%metric, fontsize=35)
     plt.yscale('log')
     plt.xlim(5e-5,np.power(10,np.log10(means.max())+1))
     plt.ylim((variances[variances.nonzero()].min()/10,np.power(10,np.log10(variances.max())+1)))
@@ -119,14 +119,14 @@ def discretize_df_columns(df):
         qdf.insert(0,s.name,s.values.round(0))
     return qdf
 
-df_symbols= pd.read_csv("gene_symbol.txt", index_col=[0])
+df_symbols= pd.read_csv("https://www.genenames.org/cgi-bin/download/custom?col=gd_hgnc_id&col=gd_app_sym&col=gd_pub_ensembl_id&col=md_ensembl_id&col=md_eg_id&status=Approved&status=Entry%20Withdrawn&hgnc_dbtag=on&order_by=gd_app_sym_sort&format=text&submit=submit", index_col=[0], sep='\t')
 
 def get_symbol(ensg):
     '''
     convert ensg to symbol
     '''
-    if ensg in df_symbols.index.values:
-        return df_symbols.at[ensg,'Description']
+    if ensg[:15] in df_symbols['Ensembl gene ID'].values:
+        return df_symbols[df_symbols['Ensembl gene ID']==ensg[:15]]['Approved symbol'].values[0]
     else:
         return ''
 
@@ -134,60 +134,59 @@ def get_ensg(description):
     '''
     convert descr to ensg
     '''
-    if description in df_symbols['Description'].values:
-        return df_symbols[df_symbols['Description']==description].index[0]
+    if description in df_symbols['Approved symbol'].values:
+        return df_symbols[df_symbols['Approved symbol']==description]['Ensembl gene ID']
     else:
         return ''
 
-def plotvarmen(means, variances, ax = None, normalisation_str = "counts"):
-    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+def plotvarmen(means, variances, ax = None, normalisation_str = "counts", poisson_limit=1, colorbar=False, **kwargs):
+    x_lin = np.logspace(np.log10(np.nanmin(means)),np.log10(np.nanmax(means)), dtype=float,num=50)
     if ax is None:
-        fig=plt.figure(figsize=(15,8))
+        fig=plt.figure(figsize=(18,15))
         ax=fig.subplots()
-    ax.plot(x_lin[:20],x_lin[:20], 'r-', lw=3.5, label='$<%s>$ (Poisson)'%normalisation_str)
-    ax.plot(x_lin[-40:],np.power(x_lin[-40:],2), 'g-', lw=3.5, label='$<%s>^2$ (Taylor)'%normalisation_str)
+    ax.plot(x_lin[x_lin>=poisson_limit-0.5],np.power(x_lin[x_lin>=poisson_limit-0.5],2)*1/poisson_limit, 'b--', lw=5, label="$m_g^2$ (Taylor)")
+    ax.plot(x_lin[x_lin<=poisson_limit+0.5],x_lin[x_lin<=poisson_limit+0.5], 'r--', lw=5, label="$m_g$ (Poisson)")
 
-    scatterdense(means, variances, ax=ax, label='genes')
-
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
-    ax.set_ylabel("$\sigma^2_{%s}$"%normalisation_str, fontsize=20)
+    scatterdense(means, variances, ax=ax, label='data', colorbar=colorbar, c_title="Number of genes", **kwargs)
+    ax.tick_params(labelsize=35, width=8, length=20)
+    ax.set_xlabel("Mean expression level, $m_g$", fontsize=35)
+    ax.set_ylabel("Variance of expression level, $v_g$", fontsize=35)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(np.nanmin(means[means.nonzero()])/5,np.power(10,np.log10(np.nanmax(means))+1))
     ax.set_ylim((np.nanmin(variances[variances.nonzero()])/10,np.power(10,np.log10(np.nanmax(variances))+1)))
-    ax.legend(fontsize=20)
-    plt.show()
+    ax.legend(fontsize=35)
 
-def plotcv2mean(means, variances, ax=None, normalisation_str = "counts"):
-    x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
+def plotcv2mean(means, variances, ax=None, normalisation_str = "counts", poisson_limit=1, colorbar=False, **kwargs):
+    x_lin = np.logspace(np.log10(np.nanmin(means)),np.log10(np.nanmax(means)), dtype=float,num=50)
     cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
-    scatterdense(means[means.nonzero()], cv2,ax=ax)
+    scatterdense(means[means>0], cv2,ax=ax, label="data", colorbar=colorbar, c_title="Number of genes", **kwargs)
     if ax is None:
-        fig=plt.figure(figsize=(15,8))
+        fig=plt.figure(figsize=(18,15))
         ax=fig.subplots()
-    ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='Taylor')
-    ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='Poisson')
+    ax.plot(x_lin[x_lin>=poisson_limit-0.5],[1/poisson_limit for _ in x_lin[x_lin>=poisson_limit-0.5]], 'b--', lw=5, label="%.1f (Taylor)"%(1/poisson_limit))
+    ax.plot(x_lin[x_lin<=poisson_limit+0.5],1./x_lin[x_lin<=poisson_limit+0.5], 'r--', lw=5, label="$m_g^{-1}$ (Poisson)")
 
     #plt.plot(x_lin, [nfiles-1 for _ in x_lin], color='cyan', ls='--', lw=3.5, label='bound')
-
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
-    ax.set_ylabel("$cv^2$", fontsize=20)
+    ax.tick_params(labelsize=35, width=8, length=20)
+    ax.set_ylabel("Coefficient of variation squared, $CV^2_g$", fontsize=35)
+    ax.set_xlabel("Mean expression level, $m_g$", fontsize=35)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
-    ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=20)
-    plt.show()
+    ax.tick_params(labelsize=20)
+    ax.set_xlim(means[means>0].min()*0.9,np.power(10,np.log10(np.nanmax(means))+1))
+    ax.set_ylim((cv2[cv2>0].min()/10,np.power(10,np.log10(np.nanmax(cv2)+1))))
+    ax.legend(fontsize=24)
 
 
 def plotoversigmacv2(means,variances, ax=None, normalisation_str = "counts", how_many_sigmas=3):
     x_lin = np.logspace(np.log10(means[means.nonzero()].min()),np.log10(means[means.nonzero()].max()), dtype=float,num=50)
     cv2 = np.array([variances[i]/(np.power(mean,2)) for i,mean in enumerate(means) if mean>0])
     if ax is None:
-        fig=plt.figure()
+        fig=plt.figure(figsize=(18,15))
         ax=fig.subplots()
     ax.scatter(means[means.nonzero()], cv2, c='b')
-
+    ax.tick_params(labelsize=35, width=8, length=20)
     ax.plot(x_lin[-30:],[1e-1 for _ in x_lin[-30:]], 'g-', lw=3.5, label='$1$ (Taylor)')
     ax.plot(x_lin[:30],1./x_lin[:30], 'r-', lw=3.5, label='$<%s>^{-1}$ (Poisson)'%normalisation_str)
 
@@ -202,14 +201,13 @@ def plotoversigmacv2(means,variances, ax=None, normalisation_str = "counts", how
     ax.plot((bin_edges[:-1] + bin_edges[1:])/2, bin_means+bin_sigmas*how_many_sigmas, lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
 
 
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
-    ax.set_ylabel("$cv^2$", fontsize=20)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=35)
+    ax.set_ylabel("$cv^2$", fontsize=35)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=20)
-    plt.show()
+    ax.legend(fontsize=35)
 
 def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "counts", how_many_sigmas=3):
     if ax is None:
@@ -232,14 +230,14 @@ def plotoverpoints(means, variances, over_plot, ax=None, normalisation_str = "co
     bin_sigmas,  _, _ = stats.binned_statistic(means[means.nonzero()], cv2, statistic=np.std, bins=log_bins_for_x)
     ax.hlines(bin_means+bin_sigmas*how_many_sigmas,bin_edges[1:], bin_edges[:-1], lw=3, color='yellow', label='binned average + $%d\sigma$'%how_many_sigmas)
 
-
-    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=20)
-    ax.set_ylabel("$cv^2$", fontsize=20)
+    ax.tick_params(labelsize=35, width=8, length=20)
+    ax.set_xlabel("$<%s>$"%normalisation_str, fontsize=35)
+    ax.set_ylabel("$cv^2$", fontsize=35)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(means[means.nonzero()].min()/5,np.power(10,np.log10(means.max())+1))
     ax.set_ylim((cv2[cv2.nonzero()].min()/10,np.power(10,np.log10(cv2.max())+1)))
-    ax.legend(fontsize=20)
+    ax.legend(fontsize=35)
     plt.show()
 
 def getovergenes(df_mv, func, method='sampling', distance=10, how_many_sigmas=3, knee=100):
