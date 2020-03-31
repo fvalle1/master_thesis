@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:bionic
 LABEL maintainer='Filippo Valle <filippo.valle@edu.unito.it>'
 
 RUN apt-get update
@@ -22,8 +22,8 @@ RUN apt-get install ipython libgtk-3-dev libjs-mathjax pandoc --yes
 RUN pip3 install gobject matplotlib pandas jupyter cairocffi
 
 
-RUN echo "deb http://downloads.skewed.de/apt/bionic bionic universe" >> /etc/apt/sources.list
-RUN echo "deb-src http://downloads.skewed.de/apt/bionic bionic universe" >> /etc/apt/sources.list
+RUN echo "deb http://downloads.skewed.de/apt/ bionic main" >> /etc/apt/sources.list
+RUN echo "deb-src http://downloads.skewed.de/apt/ bionic main" >> /etc/apt/sources.list
 RUN apt-key adv --keyserver keys.openpgp.org --recv-key 612DEFB798507F25
 RUN apt-get update && apt-get install python3-graph-tool --yes
 
